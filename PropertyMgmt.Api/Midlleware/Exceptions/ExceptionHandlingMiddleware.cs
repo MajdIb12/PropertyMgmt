@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using PropertyMgmt.Application.Common.Exceptions; // استدعاء استثناءاتك
 
-namespace PropertyMgmt.Api.Exceptions;
+namespace PropertyMgmt.Api.Middleware.Exceptions;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {

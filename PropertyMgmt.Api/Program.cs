@@ -1,7 +1,8 @@
 using PropertyMgmt.Api;
 using PropertyMgmt.Application;
 using PropertyMgmt.Infrastructure;
-using Microsoft.OpenApi.Models; // تأكد من إضافة هذا السطر
+using Microsoft.OpenApi.Models;
+using PropertyMgmt.Api.Middleware.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,11 +12,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddApiServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
-// app.UseMiddleware<ExceptionHandlingMiddleware>();
-
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 
-// التعديل هنا: إعداد Swagger ليدعم إدخال الـ TenantId
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "PropertyMgmt API", Version = "v1" });
