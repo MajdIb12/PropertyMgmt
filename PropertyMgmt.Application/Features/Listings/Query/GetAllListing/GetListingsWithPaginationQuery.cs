@@ -1,4 +1,5 @@
 using MediatR;
+using PropertyMgmt.Application.Common.Model;
 
 namespace PropertyMgmt.Application.Features.Listings.Query.GetAllListings;
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PropertyMgmt.Application.Common.Exceptions; // استدعاء استثناءاتك
 
 namespace PropertyMgmt.Api.Middleware.Exceptions;
@@ -36,6 +37,12 @@ public class GlobalExceptionHandler : IExceptionHandler
                 Title = "Not Found",
                 Detail = exception.Message
             },
+            DbUpdateException => new ProblemDetails
+            {
+              Status = StatusCodes.Status409Conflict,
+              Title = "Database Conflict",
+              Detail = "لا يمكن إتمام العملية بسبب وجود بيانات مرتبطة أو تكرار في السجلات."
+           },
             _ => new ProblemDetails
             {
                 Status = StatusCodes.Status500InternalServerError,

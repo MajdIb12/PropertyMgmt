@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+namespace PropertyMgmt.Application.Common.Model;
 public class PaginatedList<T>
 {
     public List<T> Items { get; }
@@ -11,5 +13,15 @@ public class PaginatedList<T>
         TotalPages = (int)Math.Ceiling(count / (double)pageSize);
         TotalCount = count;
         Items = items;
+    }
+
+    public static async Task<PaginatedList<T>> CreateAsync(IQueryable<T> source, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        var count = await source.CountAsync(cancellationToken);
+        var items = await source.Skip((pageNumber - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToListAsync(cancellationToken);
+
+        return new PaginatedList<T>(items, count, pageNumber, pageSize);
     }
 }
