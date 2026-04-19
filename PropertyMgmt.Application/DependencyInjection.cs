@@ -3,7 +3,6 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using MediatR;
 using PropertyMgmt.Application.Common.Behaviors;
-using PropertyMgmt.Application.Features.Listings.Commands.CreateListing;
 
 
 namespace PropertyMgmt.Application;

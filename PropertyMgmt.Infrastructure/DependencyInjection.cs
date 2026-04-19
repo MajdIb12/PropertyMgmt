@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Infrastructure.Contexts;
 using PropertyMgmt.Infrastructure.MultiTenancy;
+using PropertyMgmt.Infrastructure.Services;
 
 namespace PropertyMgmt.Infrastructure;
 
@@ -26,6 +27,8 @@ public static class DependencyInjection
 
         // 4. تسجيل الـ Interface الخاص بالـ Context (لكي تراه طبقة الـ Application)
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+
+        services.AddScoped<IFileService, LocalFileService>();
 
         return services;
     }

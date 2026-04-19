@@ -9,32 +9,24 @@ public class GetListingsWithPaginationQueryHandler
     : IRequestHandler<GetListingsWithPaginationQuery, PaginatedList<ListingLookupDto>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly GetListingsWithPaginationMapper _mapper; // Mapperly 
 
-    public GetListingsWithPaginationQueryHandler(IApplicationDbContext context, GetListingsWithPaginationMapper mapper)
+    public GetListingsWithPaginationQueryHandler(IApplicationDbContext context)
     {
         _context = context;
-        _mapper = mapper;
     }
 
-    public async Task<PaginatedList<ListingLookupDto>> Handle(GetListingsWithPaginationQuery request, CancellationToken cancellationToken)
-    {
-        
-        var query = _context.Listings
-            .AsNoTracking()
-            .Include(x => x.ListingType)
-            .Include(x => x.Images)
-            .OrderBy(x => x.Name); 
+   public async Task<PaginatedList<ListingLookupDto>> Handle(GetListingsWithPaginationQuery request, CancellationToken cancellationToken)
+   {
+    var query = _context.Listings
+        .AsNoTracking()
+        .OrderBy(x => x.Name)
+        .Select(ListingLookupDto.Projection); // استدعاء المنطق المخزن
 
-        var count = await query.CountAsync(cancellationToken);
-
-        var items = await query
-            .Skip((request.PageNumber - 1) * request.PageSize)
-            .Take(request.PageSize)
-            .ToListAsync(cancellationToken);
-
-        var dtos = items.Select(_mapper.MapToListingLookupDto).ToList();
-
-        return new PaginatedList<ListingLookupDto>(dtos, count, request.PageNumber, request.PageSize);
+    return await PaginatedList<ListingLookupDto>.CreateAsync(
+        query, 
+        request.PageNumber, 
+        request.PageSize, 
+        cancellationToken);
     }
+
 }
