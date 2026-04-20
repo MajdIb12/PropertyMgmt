@@ -23,4 +23,8 @@ namespace PropertyMgmt.Application.Interfaces;
         DbSet<Tenant> Tenants { get; }
         DbSet<MasterAdmin> MasterAdmins { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+        Task<IDisposable> BeginTransactionAsync(CancellationToken cancellationToken);
+        Task CommitTransactionAsync(CancellationToken cancellationToken);
+        Task RollbackTransactionAsync(CancellationToken cancellationToken);
     }

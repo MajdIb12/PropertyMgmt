@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PropertyMgmt.Application.Features.Listings.Query.GetAllListings;
 using PropertyMgmt.Application.Features.Listings.Commands.CreateListing;
-using MediatR;
 
 namespace PropertyMgmt.Api.Controllers;
 

@@ -37,6 +37,12 @@ public class GlobalExceptionHandler : IExceptionHandler
                 Title = "Not Found",
                 Detail = exception.Message
             },
+            DeleteFailureException => new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Delete Failure",
+                Detail = exception.Message
+            },
             DbUpdateException => new ProblemDetails
             {
               Status = StatusCodes.Status409Conflict,

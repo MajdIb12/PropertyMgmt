@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Domain.Common;
 using PropertyMgmt.Domain.Entities;
@@ -10,6 +11,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     // 1. تعريف خدمة معرفة الشركة الحالية
     private readonly string _currentTenantId;
+    private IDbContextTransaction? _currentTransaction;
     private readonly ITenantService _tenantService;
 
     // 2. إصلاح الـ DbSets لتعمل مع EF Core
@@ -121,4 +123,37 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     return await base.SaveChangesAsync(cancellationToken);
 }
 
+    public async Task<IDisposable> BeginTransactionAsync(CancellationToken cancellationToken)
+    {
+        if (_currentTransaction != null) return _currentTransaction;
+        _currentTransaction = await Database.BeginTransactionAsync(cancellationToken);
+        return _currentTransaction;
+    }
+
+    public async Task CommitTransactionAsync(CancellationToken ct)
+    {
+        try
+        {
+            await SaveChangesAsync(ct);
+            if (_currentTransaction != null) await _currentTransaction.CommitAsync(ct);
+        }
+        finally
+        {
+            _currentTransaction?.Dispose();
+            _currentTransaction = null;
+        }
+    }
+
+    public async Task RollbackTransactionAsync(CancellationToken ct)
+    {
+        try
+        {
+            if (_currentTransaction != null) await _currentTransaction.RollbackAsync(ct);
+        }
+        finally
+        {
+            _currentTransaction?.Dispose();
+            _currentTransaction = null;
+        }
+    }
 }
