@@ -11,8 +11,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     // 1. تعريف خدمة معرفة الشركة الحالية
     private readonly string _currentTenantId;
-    private IDbContextTransaction? _currentTransaction;
     private readonly ITenantService _tenantService;
+
+    private readonly bool _isMasterAdmin;
+    private IDbContextTransaction? _currentTransaction;
 
     // 2. إصلاح الـ DbSets لتعمل مع EF Core
     public DbSet<Admin> Admins { get; set; }
@@ -40,6 +42,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         _tenantService = tenantService;
         // يجب جلب القيمة هنا لكي يراها الـ OnModelCreating
         _currentTenantId = _tenantService.GetTenantId() ?? "";
+        _isMasterAdmin = _tenantService.IsMasterAdmin();
     }
 
     override protected void OnModelCreating(ModelBuilder modelBuilder)
@@ -75,7 +78,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         builder.Entity<T>().HasQueryFilter(e => 
             !((ISoftDelete)e).IsDeleted && 
-            ((IMustHaveTenant)e).TenantId == _currentTenantId);
+            (((IMustHaveTenant)e).TenantId == _currentTenantId || _isMasterAdmin));
     }
     else if (isSoftDelete)
     {
@@ -83,7 +86,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     }
     else if (isTenant)
     {
-        builder.Entity<T>().HasQueryFilter(e => ((IMustHaveTenant)e).TenantId == _currentTenantId);
+        builder.Entity<T>().HasQueryFilter(e => ((IMustHaveTenant)e).TenantId == _currentTenantId || _isMasterAdmin);
     }
 }
 

@@ -2,8 +2,9 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PropertyMgmt.Application.Common.Exceptions;
 using PropertyMgmt.Application.Interfaces;
+using PropertyMgmt.Domain.Entities;
 
-namespace PropertyMgmt.Application.Features.ListingImages.Command.SetMainImage;
+namespace PropertyMgmt.Application.Features.Listings.Commands.SetMainImage;
 
 public class SetMainImageCommandHandler : IRequestHandler<SetMainImageCommand, bool>
 {
@@ -22,7 +23,7 @@ public class SetMainImageCommandHandler : IRequestHandler<SetMainImageCommand, b
 
     var image = await _context.ListingImages
         .FirstOrDefaultAsync(i => i.Id == request.ImageId && i.ListingId == request.ListingId, ct)
-        ?? throw new NotFoundException(nameof(ListingImages), request.ImageId);
+        ?? throw new NotFoundException(nameof(ListingImage), request.ImageId);
 
     image.IsPrimary = true;
     

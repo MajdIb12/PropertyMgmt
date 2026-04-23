@@ -2,8 +2,9 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PropertyMgmt.Application.Common.Exceptions;
 using PropertyMgmt.Application.Interfaces;
+using PropertyMgmt.Domain.Entities;
 
-namespace PropertyMgmt.Application.Features.ListingImages.Command.DeleteImage;
+namespace PropertyMgmt.Application.Features.Listings.Commands.DeleteImage;
 
 public class DeleteListingImageHandler : IRequestHandler<DeleteListingImageCommand, bool>
 {
@@ -27,7 +28,7 @@ public class DeleteListingImageHandler : IRequestHandler<DeleteListingImageComma
             throw new DeleteFailureException("Cannot delete the only image of the listing. Please add another image before deleting this one.");
         }
         var imageToDelete = listing.Images.FirstOrDefault(i => i.Id == request.ImageId)
-            ?? throw new NotFoundException(nameof(ListingImages), request.ImageId);
+            ?? throw new NotFoundException(nameof(ListingImage), request.ImageId);
 
         bool wasPrimary = imageToDelete.IsPrimary;
 

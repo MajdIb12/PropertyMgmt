@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace PropertyMgmt.Application.Features.ListingImages.Command.UploadImages;
+namespace PropertyMgmt.Application.Features.Listings.Commands.UploadImages;
 
 public class UploadListingImagesValidator : AbstractValidator<UploadListingImagesCommand>
 {
@@ -11,7 +11,7 @@ public class UploadListingImagesValidator : AbstractValidator<UploadListingImage
 
         RuleFor(x => x.Files)
             .NotNull().WithMessage("Files are required.")
-            .Must(files => files.Count > 0).WithMessage("At least one file must be uploaded.")
+            .Must(files => files != null && files.Any()).WithMessage("At least one file must be uploaded.")
             .Must(x => x.All(file => file.Length < 2 * 1024 * 1024)).WithMessage("Each file must be less than 2MB.")
             .Must(x => x.All(file =>{
                  var extension = Path.GetExtension(file.FileName).ToLower();

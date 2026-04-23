@@ -1,6 +1,6 @@
 using MediatR;
 using PropertyMgmt.Application.Interfaces;
 
-namespace PropertyMgmt.Application.Features.ListingImages.Command.SetMainImage;
+namespace PropertyMgmt.Application.Features.Listings.Commands.SetMainImage;
 
 public record SetMainImageCommand(Guid ListingId, Guid ImageId) : IRequest<bool>, ITransactionalRequest;

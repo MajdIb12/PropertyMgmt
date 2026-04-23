@@ -4,7 +4,7 @@ using PropertyMgmt.Application.Common.Exceptions;
 using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Domain.Entities;
 
-namespace PropertyMgmt.Application.Features.ListingImages.Command.UploadImages;
+namespace PropertyMgmt.Application.Features.Listings.Commands.UploadImages;
 
 public class UploadListingImagesCommandHandler : IRequestHandler<UploadListingImagesCommand, bool>
     {

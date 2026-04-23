@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace PropertyMgmt.Application.Features.ListingImages.Command.DeleteImage;
+namespace PropertyMgmt.Application.Features.Listings.Commands.DeleteImage;
 
 public class DeleteListingImageValidator : AbstractValidator<DeleteListingImageCommand>
 {

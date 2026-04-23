@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace PropertyMgmt.Application.Features.ListingImages.Command.SetMainImage;
+namespace PropertyMgmt.Application.Features.Listings.Commands.SetMainImage;
 
 public class SetMainImageValidator : AbstractValidator<SetMainImageCommand>
 {
