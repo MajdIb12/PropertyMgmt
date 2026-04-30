@@ -1,0 +1,91 @@
+### إعدادات البيئة
+@hostname = majd.localhost
+@port = 7149
+@host = https://{{hostname}}:{{port}}
+@tenantId = "A1B2C3D4-E5F6-47A8-9B0C-1D2E3F4G5H6I"
+@listingId = 00000000-0000-0000-0000-000000000000
+
+# ---------------------------------------------------------
+# 1. جلب قائمة العقارات (متاح للجميع)
+# ---------------------------------------------------------
+GET {{host}}/api/v1/listings?PageNumber=1&PageSize=10
+X-Tenant: {{tenantId}}
+Accept: application/json
+
+###
+
+# ---------------------------------------------------------
+# 2. جلب تفاصيل عقار معين (متاح للجميع)
+# ---------------------------------------------------------
+GET {{host}}/api/listings/{{listingId}}
+X-Tenant: {{tenantId}}
+Accept: application/json
+
+###
+
+# ---------------------------------------------------------
+# 3. إنشاء عقار جديد (يتطلب Authorization)
+# ---------------------------------------------------------
+POST {{host}}/api/listings
+X-Tenant: {{tenantId}}
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "title": "شقة فاخرة في طرطوس",
+  "description": "إطلالة بحرية مميزة",
+  "price": 1500000,
+  "listingTypeId": "guid-here"
+}
+
+###
+
+# ---------------------------------------------------------
+# 4. تحديث عقار موجود
+# ---------------------------------------------------------
+PUT {{host}}/api/listings/{{listingId}}
+X-Tenant: {{tenantId}}
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "id": "{{listingId}}",
+  "title": "تحديث: شقة فاخرة جداً",
+  "price": 1600000
+}
+
+###
+
+# ---------------------------------------------------------
+# 5. حذف عقار
+# ---------------------------------------------------------
+DELETE {{host}}/api/listings/{{listingId}}
+X-Tenant: {{tenantId}}
+Authorization: Bearer YOUR_TOKEN_HERE
+
+###
+
+# ---------------------------------------------------------
+# 6. رفع صور للعقار (FromForm)
+# ---------------------------------------------------------
+POST {{host}}/api/listings/{{listingId}}/images
+X-Tenant: {{tenantId}}
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="files"; filename="apartment.jpg"
+Content-Type: image/jpeg
+
+< ./path/to/your/image.jpg
+--WebAppBoundary--
+
+###
+
+# ---------------------------------------------------------
+# 7. حذف صورة محددة من العقار
+# ---------------------------------------------------------
+@imageId = your-image-guid
+DELETE {{host}}/api/listings/{{listingId}}/images/{{imageId}}
+X-Tenant: {{tenantId}}
+Authorization: Bearer YOUR_TOKEN_HERE

@@ -3,10 +3,7 @@ using PropertyMgmt.Domain.Enums;
 
 namespace PropertyMgmt.Domain.Entities;
 
-public class Admin : BaseEntity
+public class Admin : ApplicationUser
 {
-    public string Username { get; set; } = null!;
-    public string Email { get; set; } = null!;
-    public string PasswordHash { get; set; } = null!;
     public AdminRole Role { get; set; } 
 }

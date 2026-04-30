@@ -12,7 +12,7 @@ public class ListingTypeConfiguration : IEntityTypeConfiguration<ListingType>
 
         builder.Property(lt => lt.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(101);
 
         builder.Property(lt => lt.Description)
             .HasMaxLength(500);

@@ -18,10 +18,16 @@
 
   <ItemGroup>
     <Folder Include="Common\Model\" />
+    <Folder Include="Common\Model\IdentityDtos\" />
     <Folder Include="Features\Listings\Commands\DeleteListing\" />
     <Folder Include="Features\Listings\Query\" />
     <Folder Include="Features\Listings\Query\GetAllListing\" />
     <Folder Include="Features\Listings\Query\GetListingById\" />
+    <Folder Include="Features\Tenants\Command\" />
+    <Folder Include="Features\Tenants\Command\CreateTenant\" />
+    <Folder Include="Features\Tenants\Command\DeleteTenant\" />
+    <Folder Include="Features\Tenants\Command\UpdateTenant\" />
+    <Folder Include="Features\Tenants\Query\GetTenantById\" />
   </ItemGroup>
 
   <PropertyGroup>

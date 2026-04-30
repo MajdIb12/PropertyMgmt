@@ -1,43 +1,37 @@
 
 using PropertyMgmt.Application.Common.Model;
 using PropertyMgmt.Application.Interfaces;
+using PropertyMgmt.Infrastructure.MultiTenancy;
 
-namespace PropertyMgmt.Api.Midlleware;
-public class TenantIdentificationMiddleware
+namespace PropertyMgmt.Api.Middleware;
+public class TenantIdentificationMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public TenantIdentificationMiddleware(RequestDelegate next)
+    public async Task InvokeAsync(HttpContext context, ITenantStore domainResolver)
     {
-        _next = next;
-    }
+        var host = context.Request.Host.Host.ToLower(); // مثلاً: tartous.majd.com
 
-    public async Task InvokeAsync(HttpContext context, ITenantStore tenantStore)
-    {
-        var host = context.Request.Host.Host; // مثلاً: majd.yoursite.com
-        var segments = host.Split('.');
-
-        // إذا كان الرابط يحتوي على Subdomain (أكثر من مقطعين)
-        if (segments.Length > 2)
+        if (host == "localhost")
         {
-            var subdomain = segments[0];
+            await next(context);
+            return;
+        }
 
-            // استرجاع المستأجر من قاعدة البيانات (أو الكاش لسرعة الأداء)
-            var tenant = await tenantStore.GetTenantBySubdomain(subdomain);
+        if (host.EndsWith(".localhost"))
+        {
+            var subdomain = host.Replace(".localhost", ""); 
 
-            if (tenant != null)
+            var tenantId = await domainResolver.GetTenantBySubdomain(subdomain);
+
+            if (!string.IsNullOrEmpty(tenantId))
             {
-                context.Items["TenantId"] = tenant.Id.ToString();
-            }
-            else
-            {
-                // إذا لم نجد المستأجر، ننهي الطلب (عطالة منطقية)
-                context.Response.StatusCode = StatusCodes.Status404NotFound;
-                await context.Response.WriteAsync("This tenant does not exist.");
+                context.Items["TenantId"] = tenantId;
+                await next(context);
                 return;
             }
         }
 
-        await _next(context);
+        
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        await context.Response.WriteAsync("This company is not registered on our platform.");
     }
 }

@@ -8,7 +8,7 @@ using PropertyMgmt.Application.Features.ListingTypes.Query.GetListingTypeById;
 
 namespace PropertyMgmt.Api.Controllers;
 
-[Authorize]
+//[Authorize]
 public class ListingTypesController : BaseApiController
 {
     [HttpGet]

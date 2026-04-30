@@ -9,7 +9,7 @@ using PropertyMgmt.Application.Features.Listings.Commands.DeleteImage;
 
 namespace PropertyMgmt.Api.Controllers;
 
-[Authorize] // تأمين العمليات بشكل عام
+//[Authorize] // تأمين العمليات بشكل عام
 public class ListingsController : BaseApiController
 {
     // 1. جلب قائمة العقارات مع الفلترة (Query)

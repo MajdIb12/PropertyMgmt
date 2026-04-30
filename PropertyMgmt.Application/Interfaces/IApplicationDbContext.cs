@@ -16,7 +16,7 @@ namespace PropertyMgmt.Application.Interfaces;
         DbSet<Payment> Payments { get; }
         DbSet<Review> Reviews { get; }
         DbSet<SubscriptionPlan> SubscriptionPlans { get; }
-        DbSet<User> Users { get; }
+        DbSet<User> Customers { get; }
 
         DbSet<AuditLog> AuditLogs { get; }
 

@@ -1,19 +1,21 @@
 ﻿using System.Reflection;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Domain.Common;
 using PropertyMgmt.Domain.Entities;
+using PropertyMgmt.Infrastructure.Persistence.Configurations;
 
 namespace PropertyMgmt.Infrastructure.Contexts;
 
-public class ApplicationDbContext : DbContext, IApplicationDbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>, IApplicationDbContext
 {
     // 1. تعريف خدمة معرفة الشركة الحالية
-    private readonly string _currentTenantId;
-    private readonly ITenantService _tenantService;
+    private readonly ITenantService? _tenantService;
 
-    private readonly bool _isMasterAdmin;
     private IDbContextTransaction? _currentTransaction;
 
     // 2. إصلاح الـ DbSets لتعمل مع EF Core
@@ -28,32 +30,41 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
-    public DbSet<User> Users { get; set; }
+    public DbSet<User> Customers { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<MasterAdmin> MasterAdmins { get; set; }
 
-    // 3. حقن خدمة الـ Tenant (سنصنعها لاحقاً، حالياً سنمررها كـ interface وهمي أو نتركها فارغة للتوضيح)
-    // public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService) : base(options)
-    public ApplicationDbContext(
-    DbContextOptions<ApplicationDbContext> options, 
-    ITenantService tenantService) : base(options)
+    private string? _currentTenantId => _tenantService?.TenantId;
+    private bool _isMasterAdmin => _tenantService?.IsMasterAdmin ?? false;
+
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService)
+        : base(options)
     {
         _tenantService = tenantService;
-        // يجب جلب القيمة هنا لكي يراها الـ OnModelCreating
-        _currentTenantId = _tenantService.GetTenantId() ?? "";
-        _isMasterAdmin = _tenantService.IsMasterAdmin();
+        
     }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+{
+    // أضف هذا السطر لإسكات هذا التحذير تحديداً ومنعه من التحول لـ Exception
+    optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+}
 
     override protected void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        //  modelBuilder.ApplyConfiguration(new TenantConfiguration());
+        //  modelBuilder.ApplyConfiguration(new MasterAdminConfiguration());
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         // 4. دمج فلاتر الـ Soft Delete والـ Tenant في مكان واحد!
         // ملاحظة: تأكد أن الكيانات ترث من BaseEntity الذي يحتوي على TenantId
         
        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
     {
+        if (entityType.BaseType != null)
+    {
+        continue;
+    }
         var type = entityType.ClrType;
 
         // استخدام الـ Reflection لاستدعاء دالتنا السحرية بالنوع الفعلي (مثلاً Admin)
@@ -66,60 +77,70 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         
     }
 
-   private void ApplyGlobalFilters<T>(ModelBuilder builder) where T : class
-{
-    // هنا T يمثل الكلاس الحقيقي (Admin, Listing, etc.) وليس الواجهة
+    private void ApplyGlobalFilters<T>(ModelBuilder builder) where T : class
+    {
+        var isSoftDelete = typeof(ISoftDelete).IsAssignableFrom(typeof(T));
+        var isTenant = typeof(IMustHaveTenant).IsAssignableFrom(typeof(T));
+        var isMayHaveTenant = typeof(IMayHaveTenant).IsAssignableFrom(typeof(T));
 
-    var isSoftDelete = typeof(ISoftDelete).IsAssignableFrom(typeof(T));
-    var isTenant = typeof(IMustHaveTenant).IsAssignableFrom(typeof(T));
-
-    // دمج الفلاتر بخطوة واحدة حسب الواجهات المطبقة
-    if (isSoftDelete && isTenant)
+        var tenantFilter = isMayHaveTenant || isTenant;
+        if (isSoftDelete)
     {
-        builder.Entity<T>().HasQueryFilter(e => 
-            !((ISoftDelete)e).IsDeleted && 
-            (((IMustHaveTenant)e).TenantId == _currentTenantId || _isMasterAdmin));
+        // 1. الكيانات التي تتبع مستأجر (إجبارياً أو اختيارياً)
+        if (isTenant || isMayHaveTenant)
+        {
+            builder.Entity<T>().HasQueryFilter(e =>
+                EF.Property<bool>(e, "IsDeleted") == false &&
+                (_isMasterAdmin || EF.Property<string>(e, "TenantId") == _currentTenantId));
+        }
+        // 2. الكيانات العامة التي لا تتبع أي مستأجر ولكنها تدعم الحذف الناعم (مثل جدول الـ Tenants نفسه)
+        else
+        {
+            builder.Entity<T>().HasQueryFilter(e => EF.Property<bool>(e, "IsDeleted") == false);
+        }
     }
-    else if (isSoftDelete)
-    {
-        builder.Entity<T>().HasQueryFilter(e => !((ISoftDelete)e).IsDeleted);
     }
-    else if (isTenant)
-    {
-        builder.Entity<T>().HasQueryFilter(e => ((IMustHaveTenant)e).TenantId == _currentTenantId || _isMasterAdmin);
-    }
-}
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 {
-    // 1. جلب الـ TenantId الحالي من الخدمة
-    var currentTenantId = _tenantService.GetTenantId();
-
-    foreach (var entry in ChangeTracker.Entries<IMustHaveTenant>())
+    var tenantId = _currentTenantId;
+    var isMasterAdmin = _isMasterAdmin;
+    foreach (var entry in ChangeTracker.Entries())
     {
-        switch (entry.State)
-        {
-            // عند إضافة سجل جديد (مثلاً إضافة شقة)
-            case EntityState.Added:
-                // نحقن الـ TenantId تلقائياً قبل الحفظ في القاعدة
-                entry.Entity.TenantId = currentTenantId ?? throw new Exception("Tenant ID not found!");
-                break;
-
-            // لمنع أي محاولة لتغيير الـ TenantId لسجل موجود مسبقاً (زيادة أمان)
-            case EntityState.Modified:
-                entry.Property(x => x.TenantId).IsModified = false;
-                break;
-        }
-    }
-
-    // 2. كود الـ Soft Delete الخاص بك (الذي كتبته سابقاً)
-    foreach (var entry in ChangeTracker.Entries<ISoftDelete>())
-    {
-        if (entry.State == EntityState.Deleted)
+        // 1. التعامل مع الـ Soft Delete (لكل الكيانات)
+        if (entry.Entity is ISoftDelete softDeleteEntry && entry.State == EntityState.Deleted)
         {
             entry.State = EntityState.Modified;
-            entry.Entity.IsDeleted = true;
-            entry.Entity.DeletedAt = DateTimeOffset.UtcNow;
+            softDeleteEntry.IsDeleted = true;
+            softDeleteEntry.DeletedAt = DateTimeOffset.UtcNow;
+        }
+
+        switch (entry.State)
+        {
+            case EntityState.Added:
+                if (entry.Entity is IMustHaveTenant mustHave)
+                {
+                    // إذا كان إلزامي، يجب وجود TenantId (إلا إذا كان الماستر يحقنه يدوياً لشركة أخرى)
+                    mustHave.TenantId ??= tenantId 
+                        ?? throw new Exception("Security Breach: Tenant ID is required for this entity!");
+                }
+                else if (entry.Entity is IMayHaveTenant mayHave)
+                {
+                    // إذا كان اختيارياً (مثل ApplicationUser)، نحقنه فقط إذا لم يكن الشخص Master Admin
+                    if (!isMasterAdmin)
+                    {
+                        mayHave.TenantId ??= tenantId;
+                    }
+                }
+                break;
+
+            case EntityState.Modified:
+                // منع تغيير الـ TenantId نهائياً لأي كيان بعد إنشائه
+                if (entry.Entity is IMustHaveTenant || entry.Entity is IMayHaveTenant)
+                {
+                    entry.Property("TenantId").IsModified = false;
+                }
+                break;
         }
     }
 

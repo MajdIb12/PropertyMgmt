@@ -4,5 +4,5 @@ namespace PropertyMgmt.Application.Interfaces;
 
 public interface ITenantStore
 {
-    public Task<Tenant?> GetTenantBySubdomain(string subdomain);
+    public Task<string?> GetTenantBySubdomain(string subdomain);
 }

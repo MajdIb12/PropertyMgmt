@@ -7,28 +7,28 @@ namespace PropertyMgmt.Infrastructure.MultiTenancy;
 public class TenantService : ITenantService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IApplicationDbContext _context; // نحتاج سياق قاعدة البيانات للبحث
+    private string? _cachedTenantId;
+    private bool? _cachedIsMaster;
 
-    public TenantService(IHttpContextAccessor httpContextAccessor, IApplicationDbContext context)
+    public TenantService(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
-        _context = context;
     }
 
-    
+    public string? TenantId => _cachedTenantId ??= GetTenantFromContext();
+    public bool IsMasterAdmin => _cachedIsMaster ??= CheckMasterRole();
 
-    public string? GetTenantId()
+    private string? GetTenantFromContext()
     {
-        // محاولة جلب الـ ID من الـ Token أولاً (للمستخدمين المسجلين)
-        var tenantIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirstValue("TenantId");
+        var context = _httpContextAccessor.HttpContext;
+        var claimValue = context?.User?.FindFirstValue("TenantId");
         
-        if (!string.IsNullOrEmpty(tenantIdClaim)) return tenantIdClaim;
-
-        // خيار احتياطي: جلبها من الـ Items التي وضعها الـ Middleware (للزوار)
-        return _httpContextAccessor.HttpContext?.Items["TenantId"]?.ToString();
+        return !string.IsNullOrEmpty(claimValue) 
+               ? claimValue 
+               : context?.Items["TenantId"]?.ToString();
     }
 
-    public bool IsMasterAdmin()
+    private bool CheckMasterRole()
     {
         return _httpContextAccessor.HttpContext?.User?.IsInRole("MasterAdmin") ?? false;
     }

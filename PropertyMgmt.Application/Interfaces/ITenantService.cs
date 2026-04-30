@@ -2,6 +2,6 @@ namespace PropertyMgmt.Application.Interfaces;
 
 public interface ITenantService
 {
-    public string? GetTenantId();
-       bool IsMasterAdmin();
+    public string? TenantId { get; }
+    public bool IsMasterAdmin { get; }
 }
