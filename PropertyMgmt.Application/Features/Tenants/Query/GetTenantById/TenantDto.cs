@@ -1,3 +1,5 @@
+using PropertyMgmt.Domain.Entities;
+
 namespace PropertyMgmt.Application.Features.Tenants.Query.GetTenantById;
 
 public class TenantDto
@@ -10,4 +12,13 @@ public class TenantDto
     public string? AdminEmail { get; set; }
     public DateTime CreatedAt { get; set; }
     public string CreatedByMasterAdminId { get; set; } = string.Empty;
+
+    public AdminForTenantDto Admin { get; set; } = new AdminForTenantDto();
+}
+
+    public class AdminForTenantDto
+{
+    public string FullName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
 }

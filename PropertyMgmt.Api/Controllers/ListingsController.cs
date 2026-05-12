@@ -34,6 +34,7 @@ public class ListingsController : BaseApiController
     // 3. إنشاء عقار جديد (Command)
     [HttpPost]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateListingCommand command)
     {
         var id = await Mediator.Send(command);

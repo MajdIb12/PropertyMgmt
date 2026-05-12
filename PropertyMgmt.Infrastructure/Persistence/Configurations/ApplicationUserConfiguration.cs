@@ -9,7 +9,6 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 {
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
-        // إعداد الـ TPH (Table-Per-Hierarchy)
         builder.HasDiscriminator<string>("UserType")
             .HasValue<Admin>("Admins")
             .HasValue<User>("User")
@@ -18,7 +17,9 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
         // إعدادات إضافية ضرورية
         builder.Property(u => u.FullName).HasMaxLength(100).IsRequired();
         
-        // تأكد أن الـ TenantId اختياري لأن الـ MasterAdmin لا يملكه
         builder.Property(u => u.TenantId).IsRequired(false);
+
+        builder.Property(u => u.Email).HasMaxLength(255).IsRequired();
+        builder.HasIndex(u => u.Email).IsUnique();
     }
 }

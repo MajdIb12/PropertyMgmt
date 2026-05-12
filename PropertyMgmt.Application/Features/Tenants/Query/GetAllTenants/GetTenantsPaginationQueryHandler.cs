@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PropertyMgmt.Application.Common.Model;
 using PropertyMgmt.Application.Interfaces;
+using PropertyMgmt.Domain.Entities;
 
 namespace PropertyMgmt.Application.Features.Tenants.Query.GetAllTenants;
 
@@ -17,12 +18,17 @@ public class GetTenantsPaginationQueryHandler : IRequestHandler<GetTenantsPagina
     public async Task<PaginatedList<AllTenantDto>> Handle(GetTenantsPaginationQuery request, CancellationToken cancellationToken)
     {
         var query = _context.Tenants.AsNoTracking()
-            .Select(t => new AllTenantDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                Identifier = t.Identifier
-            });
+    .Select(t => new AllTenantDto
+    {
+        Id = t.Id,
+        Name = t.Name,
+        Identifier = t.Identifier,
+        AdminEmail = t.AdminEmail,
+        FullName = t.Users
+            .Where(u => u.Email == t.AdminEmail)
+            .Select(u => u.FullName)
+            .FirstOrDefault() ?? string.Empty
+    });
         
         return await PaginatedList<AllTenantDto>.CreateAsync(query, request.PageNumber, request.PageSize, cancellationToken);
     }

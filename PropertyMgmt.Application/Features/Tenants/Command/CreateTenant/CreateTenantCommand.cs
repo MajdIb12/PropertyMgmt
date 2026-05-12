@@ -7,6 +7,6 @@ public record CreateTenantCommand(
     string Name,
     string Identifier,
     DateTime? SubscriptionEndDate,
-    string? AdminEmail,
+    string AdminEmail,
     Guid CreatedByMasterAdminId
 ): IRequest<string>;

@@ -17,6 +17,7 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, s
     {
         var tenant = new Tenant
         {
+            Id = Guid.NewGuid().ToString(),
             Name = request.Name,
             Identifier = request.Identifier,
             SubscriptionEndDate = request.SubscriptionEndDate,

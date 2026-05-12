@@ -22,9 +22,18 @@ public class TokenService : ITokenService
     {
         new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
         new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-        new Claim("TenantId", user.TenantId ?? ""), 
-        new Claim(ClaimTypes.Role, user.GetType().Name) 
+        new Claim("TenantId", user.TenantId ?? ""),
+        new Claim("SecurityStamp", user.SecurityStamp ?? "")
     };
+    if (user is Admin admin)
+        claims.Add(new Claim(ClaimTypes.Role, admin.Role.ToString()));
+
+    else if (user is User)
+        claims.Add(new Claim(ClaimTypes.Role, nameof(User)));
+        
+    else if (user is MasterAdmin)
+        claims.Add(new Claim(ClaimTypes.Role, nameof(MasterAdmin)));
+
 
     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Key));
     var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

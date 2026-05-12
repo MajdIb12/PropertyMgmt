@@ -19,15 +19,30 @@
   <ItemGroup>
     <Folder Include="Common\Model\" />
     <Folder Include="Common\Model\IdentityDtos\" />
+    <Folder Include="Features\Admins\" />
+    <Folder Include="Features\Admins\Command\" />
+    <Folder Include="Features\Admins\Command\CreateAdmin\" />
+    <Folder Include="Features\Admins\Command\DeleteAdmin\" />
+    <Folder Include="Features\Admins\Command\UpdateAdmin\" />
+    <Folder Include="Features\Admins\Query\" />
+    <Folder Include="Features\Admins\Query\GetAdminById\" />
+    <Folder Include="Features\Admins\Query\GetAllAdmin\" />
     <Folder Include="Features\Listings\Commands\DeleteListing\" />
     <Folder Include="Features\Listings\Query\" />
     <Folder Include="Features\Listings\Query\GetAllListing\" />
     <Folder Include="Features\Listings\Query\GetListingById\" />
+    <Folder Include="Features\Supscriptions\Command\CreateSubscription\" />
     <Folder Include="Features\Tenants\Command\" />
     <Folder Include="Features\Tenants\Command\CreateTenant\" />
     <Folder Include="Features\Tenants\Command\DeleteTenant\" />
     <Folder Include="Features\Tenants\Command\UpdateTenant\" />
     <Folder Include="Features\Tenants\Query\GetTenantById\" />
+    <Folder Include="Features\Users\Command\" />
+    <Folder Include="Features\Users\Command\CreateUser\" />
+    <Folder Include="Features\Users\Command\DeleteUser\" />
+    <Folder Include="Features\Users\Command\UpdateUser\" />
+    <Folder Include="Features\Users\Query\CanUserPostListings\" />
+    <Folder Include="Features\Users\Query\GetAllUser\" />
   </ItemGroup>
 
   <PropertyGroup>

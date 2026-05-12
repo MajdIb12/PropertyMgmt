@@ -1,7 +1,5 @@
 
-using PropertyMgmt.Application.Common.Model;
 using PropertyMgmt.Application.Interfaces;
-using PropertyMgmt.Infrastructure.MultiTenancy;
 
 namespace PropertyMgmt.Api.Middleware;
 public class TenantIdentificationMiddleware(RequestDelegate next)

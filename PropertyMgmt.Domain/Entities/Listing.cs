@@ -24,8 +24,5 @@ public class Listing : BaseEntity
     public Guid OwnerId { get; set; }
     
     public User Owner { get; set; } = null!;
-
-    public ICollection<Amenity> Amenities { get; set; } = new List<Amenity>();
-
     public ICollection<ListingImage> Images { get; set; } = new List<ListingImage>();
 }

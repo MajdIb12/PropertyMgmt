@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PropertyMgmt.Application.Common.Exceptions;
 using PropertyMgmt.Application.Interfaces;
+using PropertyMgmt.Domain.Entities;
 
 namespace PropertyMgmt.Application.Features.Tenants.Query.GetTenantById;
 
@@ -28,7 +29,16 @@ public class GetTenantByIdQueryHandler : IRequestHandler<GetTenantByIdQuery, Ten
             SubscriptionEndDate = tenant.SubscriptionEndDate,
             AdminEmail = tenant.AdminEmail,
             CreatedAt = tenant.CreatedAt,
-            CreatedByMasterAdminId = tenant.CreatedByMasterAdminId
+            CreatedByMasterAdminId = tenant.CreatedByMasterAdminId,
+            Admin = tenant.Users
+                    .Where(u => u.Email == tenant.AdminEmail)
+                    .Select(u => new AdminForTenantDto // تحويل لـ DTO بسيط
+                    {
+                        FullName = u.FullName,
+                        Email = u.Email,
+                        PhoneNumber = u.PhoneNumber ?? string.Empty
+                    })
+                    .FirstOrDefault() ?? new AdminForTenantDto()
         };
     }
 }

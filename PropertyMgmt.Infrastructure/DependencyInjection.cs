@@ -27,6 +27,7 @@ public static class DependencyInjection
 
     services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(option =>
     {
+        option.User.RequireUniqueEmail = true;
         option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
         option.Lockout.MaxFailedAccessAttempts = 5;
         option.Lockout.AllowedForNewUsers = true;

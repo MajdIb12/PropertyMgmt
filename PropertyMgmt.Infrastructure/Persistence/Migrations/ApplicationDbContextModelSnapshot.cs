@@ -188,8 +188,9 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
@@ -244,6 +245,9 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(21)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -844,6 +848,7 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AdminEmail")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -931,8 +936,8 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000001"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "98d0e9ed-bb45-44eb-bc84-9d4a2b1da6a1",
-                            CreatedAt = new DateTime(2026, 4, 30, 13, 53, 5, 548, DateTimeKind.Utc).AddTicks(7212),
+                            ConcurrencyStamp = "8ee238ec-7533-4a26-85b6-a797d5e40abb",
+                            CreatedAt = new DateTime(2026, 5, 1, 11, 26, 9, 81, DateTimeKind.Utc).AddTicks(1088),
                             Email = "admin@propertymgmt.com",
                             EmailConfirmed = true,
                             FullName = "System Master Admin",
@@ -940,9 +945,9 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@PROPERTYMGMT.COM",
                             NormalizedUserName = "SUPERADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKA+YVfx1CuPPs9OHp6BDrcNjtgXM/dXul9YdptngrV98HthevZ2JOoVf4iFQT2wuA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF7UvlB7Kn82fbjlkeT05uJUkHYKfATeR2Y3PpJG0M4y0NaURs7/XVGrvPSHtNLk7g==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "53097338-931c-4cc9-8122-698ee2e4cadd",
+                            SecurityStamp = "ae8d563f-61ae-4a37-94f6-f3e259f1eb98",
                             TwoFactorEnabled = false,
                             UserName = "superadmin",
                             CanCreateTenants = true,

@@ -64,15 +64,11 @@ public class IdentityService : IIdentityService
         {
             UserName = request.Email,
             Email = request.Email,
-            FullName = request.FullName,
-            TenantId = request.TenantId, 
             FirstName = request.FirstName,
-            LastName = request.LastName
+            LastName = request.LastName,
         };
 
         var result = await _userManager.CreateAsync(newUser, request.Password);
         return result.Succeeded;
     }
-
-    
 }

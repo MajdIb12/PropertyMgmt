@@ -66,6 +66,7 @@ app.UseCors("DefaultPolicy");
 
 app.UseAuthentication();
 app.UseMiddleware<TenantIdentificationMiddleware>();
+app.UseMiddleware<SecurityStampValidatorMiddleware>();
 
 app.UseAuthorization();
 

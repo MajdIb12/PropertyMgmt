@@ -14,10 +14,10 @@ public class Tenant
 
     public DateTime? SubscriptionEndDate { get; set; }
 
-    public string? AdminEmail { get; set; }
+    public string AdminEmail { get; set; } = string.Empty;
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public string CreatedByMasterAdminId { get; set; } = string.Empty;
-    public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+    public ICollection<ApplicationUser> Users { get; set; } = [];
 }
