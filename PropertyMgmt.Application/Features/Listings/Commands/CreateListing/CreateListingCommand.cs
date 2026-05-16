@@ -18,6 +18,6 @@ public class CreateListingCommand : IRequest<Guid>
     public string City { get; set; } = string.Empty;
     public string Street { get; set; } = string.Empty;
     public string ZipCode { get; set; } = string.Empty;
-
+    public Guid OwnerId {get; set;}
     public Guid ListingTypeId { get; set; }
 }

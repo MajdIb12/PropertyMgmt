@@ -20,7 +20,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
 
     // 2. إصلاح الـ DbSets لتعمل مع EF Core
     public DbSet<Admin> Admins { get; set; }
-    public DbSet<Amenity> Amenities { get; set; }
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<Listing> Listings { get; set; }
     public DbSet<ListingImage> ListingImages { get; set; }

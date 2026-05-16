@@ -67,18 +67,5 @@ public class ListingConfiguration : IEntityTypeConfiguration<Listing>
             .WithOne(i => i.Listing)
             .HasForeignKey(i => i.ListingId)
             .OnDelete(DeleteBehavior.Cascade); // إذا حُذف العقار، تُحذف صوره تلقائياً
-
-        // علاقة العقار بالمرافق (Many-to-Many)
-        builder.HasMany(x => x.Amenities)
-          .WithMany(x => x.Listings) // تأكد أن كلاس Amenity يحتوي على قائمة Listings
-             .UsingEntity<Dictionary<string, object>>(
-                 "ListingAmenity", // اسم الجدول الوسيط في قاعدة البيانات
-                 j => j.HasOne<Amenity>().WithMany().HasForeignKey("AmenityId").OnDelete(DeleteBehavior.Cascade),
-                 j => j.HasOne<Listing>().WithMany().HasForeignKey("ListingId").OnDelete(DeleteBehavior.Cascade),
-                 j =>
-                 {
-            // هنا يمكنك إضافة إعدادات إضافية للجدول الوسيط إذا أردت
-              j.HasKey("ListingId", "AmenityId"); // تعريف المفتاح المركب
-        });
     }
 }

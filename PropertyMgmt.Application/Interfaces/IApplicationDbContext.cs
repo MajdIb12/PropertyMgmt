@@ -6,7 +6,6 @@ namespace PropertyMgmt.Application.Interfaces;
     public interface IApplicationDbContext
     {
         DbSet<Admin> Admins { get; }
-        DbSet<Amenity> Amenities { get; }
         DbSet<Booking> Bookings { get; }
         DbSet<Listing> Listings { get; }
         DbSet<ListingImage> ListingImages { get; }

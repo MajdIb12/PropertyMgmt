@@ -30,5 +30,7 @@ public class CreateListingValidator : AbstractValidator<CreateListingCommand>
             
         RuleFor(v => v.ListingTypeId)
             .NotEqual(Guid.Empty).WithMessage("يجب اختيار نوع العقار");
+        RuleFor(v => v.OwnerId)
+            .NotEqual(Guid.Empty).WithMessage("يجب اختيار نوع العقار");
     }
 }
