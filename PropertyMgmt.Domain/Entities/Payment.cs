@@ -14,5 +14,18 @@ namespace PropertyMgmt.Domain.Entities
 
         // الربط مع الحجز
         public Booking Booking { get; set; } = null!;
+
+        public bool TryCancel()
+        {
+            if (Status != PaymentStatus.Pending) return false;
+                Status = PaymentStatus.Failed;
+                return true;
+            
+        }
+
+        public bool TryComplete()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

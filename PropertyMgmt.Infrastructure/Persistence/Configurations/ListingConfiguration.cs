@@ -33,6 +33,7 @@ public class ListingConfiguration : IEntityTypeConfiguration<Listing>
         builder.Property(x => x.Status)
             .HasConversion<string>()
             .HasMaxLength(20)
+            .IsConcurrencyToken()
             .IsRequired();
 
         // 5. إعداد الـ Value Object (العنوان)

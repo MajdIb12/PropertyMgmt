@@ -25,4 +25,27 @@ public class Listing : BaseEntity
     
     public User Owner { get; set; } = null!;
     public ICollection<ListingImage> Images { get; set; } = new List<ListingImage>();
+
+    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+
+    public void MakeAvailable()
+    {
+        Status = ListingStatus.Available;
+    }
+
+    public bool TryRent()
+    {
+        if (Status != ListingStatus.Reserved)
+            return false;
+        Status = ListingStatus.Rented;
+        return true;
+    }
+
+    public bool TryReserve()
+    {
+        if (Status != ListingStatus.Available)
+            return false;
+        Status = ListingStatus.Reserved;
+        return true;
+    }
 }

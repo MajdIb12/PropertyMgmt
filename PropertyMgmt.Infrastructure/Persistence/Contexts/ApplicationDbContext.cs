@@ -134,8 +134,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
                 break;
 
             case EntityState.Modified:
-                // منع تغيير الـ TenantId نهائياً لأي كيان بعد إنشائه
-                if (entry.Entity is IMustHaveTenant || entry.Entity is IMayHaveTenant)
+                entry.Property("CreatedAt").IsModified = false; // لا نسمح بتعديل CreatedAt
+                entry.Property("UpdatedAt").CurrentValue = DateTime.UtcNow; // نحدث UpdatedAt تلقائياً
+                    if (entry.Entity is IMustHaveTenant || entry.Entity is IMayHaveTenant)
                 {
                     entry.Property("TenantId").IsModified = false;
                 }

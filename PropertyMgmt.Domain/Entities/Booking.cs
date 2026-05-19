@@ -16,8 +16,7 @@ namespace PropertyMgmt.Domain.Entities
     public Listing Listing { get; set; } = null!;
     public User User { get; set; } = null!;
 
-    // Constructor فارغ للـ EF Core
-    private Booking() { }
+        private Booking() { }
 
     public Booking(Guid listingId, Guid userId, DateTime start, DateTime end, decimal price)
     {
@@ -32,7 +31,19 @@ namespace PropertyMgmt.Domain.Entities
         Status = BookingStatus.Pending;
         CreatedAt = DateTime.UtcNow;
     }
-}
+
+        public bool TryCancel()
+        {
+            if (Status != BookingStatus.Pending) return false;
+            Status = BookingStatus.Cancelled;
+            return true;
+        }
+
+        public bool TryConfirm()
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     
 }

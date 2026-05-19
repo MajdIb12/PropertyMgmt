@@ -3,5 +3,6 @@ namespace PropertyMgmt.Domain.Enums;
     {
         Available = 1,
         Rented = 2,
-        UnderMaintenance = 3,
+        Reserved = 3,
+        UnderMaintenance = 4,
     }
