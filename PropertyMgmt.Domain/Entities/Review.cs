@@ -4,17 +4,34 @@ namespace PropertyMgmt.Domain.Entities
 {
     public class Review : BaseEntity
     {
-        public Guid ListingId { get; set; }
-        public Guid UserId { get; set; } // الشخص الذي كتب التقييم
-        public Guid? BookingId { get; set; } // اختياري: لربط التقييم بإقامة محددة
+        public Guid ListingId { get; private set; }
+        public Guid UserId { get; private set; }
+        public Guid? BookingId { get; private set; }
 
-        public int Rating { get; set; } // من 1 إلى 5
-        public string Comment { get; set; } = string.Empty;
+        public int Rating { get; private set; }
+        public string Comment { get; private set; } = string.Empty;
 
-        // Navigation properties
         public Listing Listing { get; set; } = null!;
         public User User { get; set; } = null!;
+
+        private Review() { }
+
+        public Review(Guid listingId, Guid userId, Guid? bookingId, int rating, string comment, string tenantId)
+        {
+            if (rating < 1 || rating > 5)
+                throw new DomainException("Rating must be between 1 and 5.");
+
+            if (string.IsNullOrWhiteSpace(comment))
+                throw new DomainException("Comment cannot be empty.");
+
+            ListingId = listingId;
+            UserId = userId;
+            BookingId = bookingId;
+            Rating = rating;
+            Comment = comment;
+            TenantId = tenantId;
+        }
     }
 
-    
+
 }

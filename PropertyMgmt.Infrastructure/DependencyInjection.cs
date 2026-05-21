@@ -6,6 +6,7 @@ using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Domain.Common;
 using PropertyMgmt.Infrastructure.Contexts;
 using PropertyMgmt.Infrastructure.MultiTenancy;
+using PropertyMgmt.Infrastructure.Notifications;
 using PropertyMgmt.Infrastructure.Services;
 
 namespace PropertyMgmt.Infrastructure;
@@ -43,6 +44,13 @@ public static class DependencyInjection
 
     services.AddScoped<IFileService, LocalFileService>();
 
-    return services;
+     services.AddSignalR();
+
+        // 2. تسجيل الخدمة الخاصة بنا تحت راية الـ Interface الخاص بالـ Application
+        services.AddScoped<INotificationService, SignalRNotificationService>();
+
+        
+
+        return services;
 }
 }

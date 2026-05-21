@@ -9,8 +9,9 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
     public ApplicationDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+        var Conn = args.Length > 0 ? args[0] : "Server=.;Database=PropertyMgmtDb;User Id=sa;Password=sa123456;Trusted_Connection=False;MultipleActiveResultSets=true;TrustServerCertificate=True";
 
-        optionsBuilder.UseSqlServer("Server=.;Database=PropertyMgmtDb;User Id=sa;Password=sa123456;Trusted_Connection=False;MultipleActiveResultSets=true;TrustServerCertificate=True");
+        optionsBuilder.UseSqlServer(Conn);
 
         return new ApplicationDbContext(optionsBuilder.Options, new DesignTimeTenantService());
     }

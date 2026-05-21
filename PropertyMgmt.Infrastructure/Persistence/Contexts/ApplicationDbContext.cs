@@ -116,24 +116,41 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
 
         switch (entry.State)
         {
-            case EntityState.Added:
-                if (entry.Entity is IMustHaveTenant mustHave)
-                {
-                    // إذا كان إلزامي، يجب وجود TenantId (إلا إذا كان الماستر يحقنه يدوياً لشركة أخرى)
-                    mustHave.TenantId ??= tenantId 
-                        ?? throw new Exception("Security Breach: Tenant ID is required for this entity!");
-                }
-                else if (entry.Entity is IMayHaveTenant mayHave)
-                {
-                    // إذا كان اختيارياً (مثل ApplicationUser)، نحقنه فقط إذا لم يكن الشخص Master Admin
-                    if (!isMasterAdmin)
+                case EntityState.Added:
+                    entry.Property("CreatedAt").CurrentValue = DateTime.UtcNow;
+                    if (entry.Entity is IMustHaveTenant mustHave)
                     {
-                        mayHave.TenantId ??= tenantId;
-                    }
-                }
-                break;
+                        // 🚀 1. إذا كان الـ TenantId الخاص بالكيان فارغاً، نحاول تعبئته
+                        if (string.IsNullOrWhiteSpace(mustHave.TenantId))
+                        {
+                            // 🚀 2. نتحقق أن الـ tenantId القادم من الخدمة ليس فارغاً أو مسافة بيضاء
+                            if (string.IsNullOrWhiteSpace(tenantId))
+                            {
+                                throw new Exception("Security Breach: Tenant ID is required for this entity!");
+                            }
 
-            case EntityState.Modified:
+                            mustHave.TenantId = tenantId;
+                        }
+                        
+                    }
+                    else if (entry.Entity is IMayHaveTenant mayHave)
+                    {
+                        if (!isMasterAdmin)
+                        {
+                            // نتحقق أيضاً هنا بنفس الصرامة
+                            if (string.IsNullOrWhiteSpace(mayHave.TenantId))
+                            {
+                                if (string.IsNullOrWhiteSpace(tenantId))
+                                {
+                                    throw new Exception("Security Breach: Tenant ID is required for this entity!");
+                                }
+                                mayHave.TenantId = tenantId;
+                            }
+                        }
+                        
+                    }
+                    break;
+                case EntityState.Modified:
                 entry.Property("CreatedAt").IsModified = false; // لا نسمح بتعديل CreatedAt
                 entry.Property("UpdatedAt").CurrentValue = DateTime.UtcNow; // نحدث UpdatedAt تلقائياً
                     if (entry.Entity is IMustHaveTenant || entry.Entity is IMayHaveTenant)

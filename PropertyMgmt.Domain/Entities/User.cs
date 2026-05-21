@@ -9,4 +9,5 @@ namespace PropertyMgmt.Domain.Entities;
 
         public ICollection<OwnerSubscription> Subscriptions { get; set; } = new List<OwnerSubscription>();
         public ICollection<Booking> MyBookings { get; set; } = new List<Booking>();
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     }

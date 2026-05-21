@@ -9,6 +9,10 @@ public class ListingImageConfiguration : IEntityTypeConfiguration<ListingImage>
     public void Configure(EntityTypeBuilder<ListingImage> builder)
     {
         builder.HasKey(li => li.Id);
+        builder.Property(x => x.TenantId)
+            .IsRequired()
+            .HasMaxLength(50);
+        builder.HasIndex(x => x.TenantId);
 
         builder.Property(li => li.ImageUrl)
             .IsRequired()

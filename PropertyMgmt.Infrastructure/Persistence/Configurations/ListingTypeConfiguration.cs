@@ -10,6 +10,11 @@ public class ListingTypeConfiguration : IEntityTypeConfiguration<ListingType>
     {
         builder.HasKey(lt => lt.Id);
 
+        builder.Property(x => x.TenantId)
+            .IsRequired()
+            .HasMaxLength(50);
+        builder.HasIndex(x => x.TenantId);
+
         builder.Property(lt => lt.Name)
             .IsRequired()
             .HasMaxLength(101);

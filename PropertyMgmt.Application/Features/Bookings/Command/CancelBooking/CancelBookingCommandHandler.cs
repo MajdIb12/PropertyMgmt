@@ -9,7 +9,7 @@ public class CancelBookingCommandHandler(IApplicationDbContext context) : IReque
 {
     public async Task<bool> Handle(CancelBookingCommand request, CancellationToken cancellationToken)
     {
-        var booking = await context.Bookings.FirstOrDefaultAsync(b => b.Id == request.BookingId, cancellationToken)
+        var booking = await context.Bookings.FindAsync(request.BookingId, cancellationToken)
             ?? throw new NotFoundException(nameof(Bookings), request.BookingId);
 
         if (!booking.TryCancel())
@@ -26,7 +26,7 @@ public class CancelBookingCommandHandler(IApplicationDbContext context) : IReque
             }
         }
 
-        var listing = await context.Listings.FirstOrDefaultAsync(l => l.Id == booking.ListingId, cancellationToken)
+        var listing = await context.Listings.FindAsync(booking.ListingId, cancellationToken)
             ?? throw new NotFoundException(nameof(Listings), booking.ListingId);
 
         listing.MakeAvailable(); 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PropertyMgmt.Infrastructure.Contexts;
 
@@ -12,9 +13,11 @@ using PropertyMgmt.Infrastructure.Contexts;
 namespace PropertyMgmt.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260520160456_FixListingConfig")]
+    partial class FixListingConfig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -588,24 +591,19 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsRead")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                        .HasColumnType("bit");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -620,8 +618,6 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
                 });
@@ -957,8 +953,8 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000001"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2e75b17e-6fc7-4921-a124-ce5118654185",
-                            CreatedAt = new DateTime(2026, 5, 21, 11, 37, 13, 955, DateTimeKind.Utc).AddTicks(4361),
+                            ConcurrencyStamp = "0d98104f-a639-4385-aba6-2d23b8b5e235",
+                            CreatedAt = new DateTime(2026, 5, 20, 16, 4, 55, 493, DateTimeKind.Utc).AddTicks(865),
                             Email = "admin@propertymgmt.com",
                             EmailConfirmed = true,
                             FullName = "System Master Admin",
@@ -966,9 +962,9 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@PROPERTYMGMT.COM",
                             NormalizedUserName = "SUPERADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKoo1QdVApHbgOd3+eiScoHPEakWUX9SpD8w4ADq+usWWtFwO3yYyd+PQmLoGNCIzA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHeND6FzdLcsBkg3xy8Cz5nDtZrMvwy+DbE9vLYttx4g0o04Tb3FGKT65E9KmDim+w==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "5876264d-72c1-4d03-ba4c-429e59bafd2b",
+                            SecurityStamp = "a3d4c558-390d-4c43-9bbe-99dccbe3a718",
                             TwoFactorEnabled = false,
                             UserName = "superadmin",
                             CanCreateTenants = true,
@@ -998,8 +994,8 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000002"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "aec5e4b8-5b20-4673-b324-04e29653f895",
-                            CreatedAt = new DateTime(2026, 5, 21, 11, 37, 14, 13, DateTimeKind.Utc).AddTicks(5608),
+                            ConcurrencyStamp = "8a5f93dd-b107-4bc3-b594-467b17cb61ba",
+                            CreatedAt = new DateTime(2026, 5, 20, 16, 4, 55, 547, DateTimeKind.Utc).AddTicks(5842),
                             Email = "usertest@propertymgmt.com",
                             EmailConfirmed = true,
                             FullName = "User test",
@@ -1007,9 +1003,9 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "USERTEST@PROPERTYMGMT.COM",
                             NormalizedUserName = "USERTEST",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDZ782s+Yy71XhlIAEssk94QmLxh+El9ICp1SVBmGbHqV5LFxTfHzCNhxWv9kJdQug==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHTk/y9FOQ9FX6aRofm/BHRz6U5YCj3kyCnaANG3Hhiap4aJpEeAaWktaFIpqGRDwA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "214b6830-8acc-4451-9046-cc41e286a825",
+                            SecurityStamp = "5f6cfb3d-894c-4c1c-b71b-d8e7c30fabb2",
                             TenantId = "A1B2C3D4-E5F6-47A8-9B0C-1D2E3F4G5H6I",
                             TwoFactorEnabled = false,
                             UserName = "usertest",
@@ -1020,8 +1016,8 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000003"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "04e14b51-96b3-4a4d-b322-8fe640ac16bb",
-                            CreatedAt = new DateTime(2026, 5, 21, 11, 37, 14, 53, DateTimeKind.Utc).AddTicks(361),
+                            ConcurrencyStamp = "2002ad1e-bfe0-4b79-9b56-ad0d0d955888",
+                            CreatedAt = new DateTime(2026, 5, 20, 16, 4, 55, 586, DateTimeKind.Utc).AddTicks(4770),
                             Email = "ownertest@propertymgmt.com",
                             EmailConfirmed = true,
                             FullName = "Owner test",
@@ -1029,9 +1025,9 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "OWNERTEST@PROPERTYMGMT.COM",
                             NormalizedUserName = "OWNERTEST",
-                            PasswordHash = "AQAAAAIAAYagAAAAECLfo5Cuux0eLnCyyu1L9T/4/AADkV4ZFfaQmoC076zfHRrk/kj5RRaItU6YqWC6Og==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF03kjY4Wr1WAHcK/6RF0hRVbBylBm8tsXcPSwVrh+WeVCWOI+YcinlW3kb03Rk2jA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "5a1212d2-b78a-4433-8ced-40706a543b54",
+                            SecurityStamp = "95f1559d-f559-495e-98ac-b8f05f50d030",
                             TenantId = "A1B2C3D4-E5F6-47A8-9B0C-1D2E3F4G5H6I",
                             TwoFactorEnabled = false,
                             UserName = "ownertest",
@@ -1150,17 +1146,6 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                     b.Navigation("Listing");
                 });
 
-            modelBuilder.Entity("PropertyMgmt.Domain.Entities.Notification", b =>
-                {
-                    b.HasOne("PropertyMgmt.Domain.Entities.User", "User")
-                        .WithMany("Notifications")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("PropertyMgmt.Domain.Entities.OwnerSubscription", b =>
                 {
                     b.HasOne("PropertyMgmt.Domain.Entities.User", "Owner")
@@ -1230,8 +1215,6 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("PropertyMgmt.Domain.Entities.User", b =>
                 {
                     b.Navigation("MyBookings");
-
-                    b.Navigation("Notifications");
 
                     b.Navigation("OwnedListings");
 

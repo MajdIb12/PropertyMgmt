@@ -37,7 +37,7 @@ public class ListingConfiguration : IEntityTypeConfiguration<Listing>
             .IsRequired();
 
         // 5. إعداد الـ Value Object (العنوان)
-        builder.OwnsOne(x => x.Address, address =>
+        builder.ComplexProperty(x => x.Address, address =>
         {
             address.Property(a => a.Street).HasMaxLength(200).HasColumnName("Street");
             address.Property(a => a.City).HasMaxLength(100).HasColumnName("City");
