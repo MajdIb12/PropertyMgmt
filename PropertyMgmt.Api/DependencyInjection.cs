@@ -1,7 +1,9 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using PropertyMgmt.Api.Services;
+using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Domain.Entities;
+using System.Text;
 
 namespace PropertyMgmt.Api;
 
@@ -48,6 +50,9 @@ public static class DependencyInjection
                 };
             });
 
+        services.AddSignalR();
+        services.AddScoped<INotificationService, SignalRNotificationService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         return services;
     }
 }

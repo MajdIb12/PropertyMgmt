@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using PropertyMgmt.Application.Common.Exceptions;
-using PropertyMgmt.Application.Features.Notifications.BookingRequest;
+using PropertyMgmt.Application.Features.Bookings.Events;
 using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Domain.Entities;
 using PropertyMgmt.Domain.Enums;
@@ -39,7 +39,7 @@ public class CreateBookingCommandHandler(IApplicationDbContext context, IMediato
         await context.Payments.AddAsync(payment);
         await context.SaveChangesAsync(cancellationToken);
 
-        await mediator.Publish(new BookingRequestedEvent(booking.Id, listing.OwnerId, user.FullName, listing.Name, booking.TenantId));
+        await mediator.Publish(new BookingRequestedEvent(booking.Id, listing.OwnerId, user.FullName, listing.Name, booking.TenantId), cancellationToken);
         return booking.Id;
     }
 }

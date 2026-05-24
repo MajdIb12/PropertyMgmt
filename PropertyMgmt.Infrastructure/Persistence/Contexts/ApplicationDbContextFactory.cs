@@ -13,13 +13,16 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
 
         optionsBuilder.UseSqlServer(Conn);
 
-        return new ApplicationDbContext(optionsBuilder.Options, new DesignTimeTenantService());
+        return new ApplicationDbContext(optionsBuilder.Options, new DesignTimeTenantService(), new DesginCurrentUserService());
     }
 }
 
-// كلاس وهمي فقط لإرضاء الـ Constructor وقت الـ Migration
 public class DesignTimeTenantService : ITenantService
 {
     public string? TenantId => null;
     public bool IsMasterAdmin => true;
+}
+public class DesginCurrentUserService : ICurrentUserService
+{
+    public string? UserId => string.Empty;
 }

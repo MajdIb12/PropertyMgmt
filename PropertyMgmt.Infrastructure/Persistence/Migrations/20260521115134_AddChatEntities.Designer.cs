@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PropertyMgmt.Infrastructure.Contexts;
 
@@ -12,9 +13,11 @@ using PropertyMgmt.Infrastructure.Contexts;
 namespace PropertyMgmt.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260521115134_AddChatEntities")]
+    partial class AddChatEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -280,20 +283,17 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PrimaryKey")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TableName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -302,12 +302,11 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("AuditLogs", (string)null);
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("PropertyMgmt.Domain.Entities.Booking", b =>
@@ -439,17 +438,11 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
@@ -463,13 +456,6 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BookingId")
-                        .IsUnique();
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("OwnerId");
 
                     b.HasIndex("TenantId", "BookingId");
 
@@ -1067,8 +1053,8 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000001"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4dab032e-96af-4b13-a1a7-8c9e501c47cc",
-                            CreatedAt = new DateTime(2026, 5, 24, 11, 27, 35, 602, DateTimeKind.Utc).AddTicks(1931),
+                            ConcurrencyStamp = "5992ee5b-e5ba-4c70-84c5-0ba2193c391b",
+                            CreatedAt = new DateTime(2026, 5, 21, 11, 51, 33, 447, DateTimeKind.Utc).AddTicks(2228),
                             Email = "admin@propertymgmt.com",
                             EmailConfirmed = true,
                             FullName = "System Master Admin",
@@ -1076,9 +1062,9 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@PROPERTYMGMT.COM",
                             NormalizedUserName = "SUPERADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJb/Z4D5zOVmNOVJkNbIkvxeM/3dj59apN3mYL9KAn74zT2RSpx5Gu1P6qMoyjT3Ww==",
+                            PasswordHash = "AQAAAAIAAYagAAAAELtIZnFw/KPtKbcGtkCvqIkslML3tc2EUD7LrcmH5nGwZNTPYXRH+X8MqVSD3Q9/RQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "47672ce0-eca1-46b8-9508-76477acedfca",
+                            SecurityStamp = "1000c527-34ad-43a0-9001-b7238bda696a",
                             TwoFactorEnabled = false,
                             UserName = "superadmin",
                             CanCreateTenants = true,
@@ -1108,8 +1094,8 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000002"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "358e9310-d215-486e-a25d-752fa196a47e",
-                            CreatedAt = new DateTime(2026, 5, 24, 11, 27, 35, 657, DateTimeKind.Utc).AddTicks(3245),
+                            ConcurrencyStamp = "1e028cda-c694-4639-a5f4-4dec12e9e61e",
+                            CreatedAt = new DateTime(2026, 5, 21, 11, 51, 33, 498, DateTimeKind.Utc).AddTicks(2649),
                             Email = "usertest@propertymgmt.com",
                             EmailConfirmed = true,
                             FullName = "User test",
@@ -1117,9 +1103,9 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "USERTEST@PROPERTYMGMT.COM",
                             NormalizedUserName = "USERTEST",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGVaqBrG8nU/WKXfDVtVvZu9aK0lstGaPPkdv7YBc0pFgITKmYqN6Ia7a71rIO2FXA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEAFVBfrlI3VOq88SFn3ijNlo3+ElyG2s22TWxRUFZqt9rnz3Y5uIMx0Bg10Bd5zITA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "d5d32210-1461-4234-9fa6-1a4599b48102",
+                            SecurityStamp = "06062478-d126-4f46-9dad-6835b4f646dd",
                             TenantId = "A1B2C3D4-E5F6-47A8-9B0C-1D2E3F4G5H6I",
                             TwoFactorEnabled = false,
                             UserName = "usertest",
@@ -1130,8 +1116,8 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000003"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "276e6fd2-c3a8-4879-9ade-7c062b0c2ea4",
-                            CreatedAt = new DateTime(2026, 5, 24, 11, 27, 35, 695, DateTimeKind.Utc).AddTicks(8579),
+                            ConcurrencyStamp = "12582df9-d8b8-459f-902b-e640c3fe6bc1",
+                            CreatedAt = new DateTime(2026, 5, 21, 11, 51, 33, 537, DateTimeKind.Utc).AddTicks(3050),
                             Email = "ownertest@propertymgmt.com",
                             EmailConfirmed = true,
                             FullName = "Owner test",
@@ -1139,9 +1125,9 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "OWNERTEST@PROPERTYMGMT.COM",
                             NormalizedUserName = "OWNERTEST",
-                            PasswordHash = "AQAAAAIAAYagAAAAEPHl59LeK0vDvpM0uJn0kquoLEm2yT6o7K5EkA0uLIxLGXcTPTzcR4iRJGvhYpPe0Q==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKVIW8ta80PW+nY+MTUbBkNS+UqdCDCuoFxwFO1X1jpEfYW38Tw4S5U6iTZBIkRTXQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "beea8805-ff40-4914-8f9d-ee980ed741c8",
+                            SecurityStamp = "b7361d6a-6640-4739-9f35-f03c643fdf8b",
                             TenantId = "A1B2C3D4-E5F6-47A8-9B0C-1D2E3F4G5H6I",
                             TwoFactorEnabled = false,
                             UserName = "ownertest",
@@ -1247,33 +1233,6 @@ namespace PropertyMgmt.Infrastructure.Persistence.Migrations
                     b.Navigation("Conversation");
 
                     b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("PropertyMgmt.Domain.Entities.Conversation", b =>
-                {
-                    b.HasOne("PropertyMgmt.Domain.Entities.Booking", "Booking")
-                        .WithOne()
-                        .HasForeignKey("PropertyMgmt.Domain.Entities.Conversation", "BookingId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PropertyMgmt.Domain.Entities.User", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PropertyMgmt.Domain.Entities.User", "Owner")
-                        .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Booking");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("PropertyMgmt.Domain.Entities.Listing", b =>

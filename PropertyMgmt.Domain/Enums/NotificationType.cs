@@ -4,4 +4,6 @@ namespace PropertyMgmt.Domain.Enums;
         General = 1,
         Maintenance = 2,
         Payment = 3,
-    }
+        Booking = 4,
+         Other = 5
+}

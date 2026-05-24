@@ -1,8 +1,10 @@
 ﻿using MediatR;
+using PropertyMgmt.Application.Features.Bookings.Events;
 using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Domain.Entities;
+using PropertyMgmt.Domain.Enums;
 
-namespace PropertyMgmt.Application.Features.Notifications.BookingRequest;
+namespace PropertyMgmt.Application.Features.Notifications.EventHandler;
 
 public class BookingRequestedEventHandler(IApplicationDbContext context, INotificationService notificationService) : INotificationHandler<BookingRequestedEvent>
 {
@@ -19,6 +21,7 @@ public class BookingRequestedEventHandler(IApplicationDbContext context, INotifi
             Message = message,
             UserId = notification.OwnerId,
             IsRead = false,
+            Type = NotificationType.Booking,
             TenantId = notification.TenantId
         };
 

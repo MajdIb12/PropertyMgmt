@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PropertyMgmt.Application.Features.Notifications.BookingRequest;
+namespace PropertyMgmt.Application.Features.Bookings.Events;
     public record BookingRequestedEvent(
     Guid BookingId,
     Guid OwnerId,

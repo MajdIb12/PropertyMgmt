@@ -4,9 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Domain.Common;
+using PropertyMgmt.Infrastructure.BackgroundServices;
 using PropertyMgmt.Infrastructure.Contexts;
 using PropertyMgmt.Infrastructure.MultiTenancy;
-using PropertyMgmt.Infrastructure.Notifications;
 using PropertyMgmt.Infrastructure.Services;
 
 namespace PropertyMgmt.Infrastructure;
@@ -14,43 +14,40 @@ namespace PropertyMgmt.Infrastructure;
 public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
-{
-    var connectionString = configuration.GetConnectionString("DefaultConnection");
+    {
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-    services.AddHttpContextAccessor();
+        services.AddHttpContextAccessor();
 
         services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString,
             b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
-    services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
 
-    services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(option =>
-    {
-        option.User.RequireUniqueEmail = true;
-        option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-        option.Lockout.MaxFailedAccessAttempts = 5;
-        option.Lockout.AllowedForNewUsers = true;
-    })
-        .AddEntityFrameworkStores<ApplicationDbContext>()
-        .AddDefaultTokenProviders();
-    services.AddMemoryCache();
-    services.AddScoped<ITokenService, TokenService>();
-    services.AddScoped<IIdentityService, IdentityService>();
-    services.AddScoped<ITenantService, TenantService>();
-    services.AddScoped<ITenantStore, TenantStore>();
+        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(option =>
+        {
+            option.User.RequireUniqueEmail = true;
+            option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+            option.Lockout.MaxFailedAccessAttempts = 5;
+            option.Lockout.AllowedForNewUsers = true;
+        })
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+        services.AddMemoryCache();
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<ITenantService, TenantService>();
+        services.AddScoped<ITenantStore, TenantStore>();
 
 
-    services.AddScoped<IFileService, LocalFileService>();
+        services.AddScoped<IFileService, LocalFileService>();
 
-     services.AddSignalR();
+        services.AddHostedService<BookingExpirationWorker>();
 
-        // 2. تسجيل الخدمة الخاصة بنا تحت راية الـ Interface الخاص بالـ Application
-        services.AddScoped<INotificationService, SignalRNotificationService>();
 
-        
 
         return services;
-}
+    }
 }

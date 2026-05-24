@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
+using PropertyMgmt.Api.Hubs;
 using PropertyMgmt.Application.Interfaces;
-using PropertyMgmt.Domain.Entities;
 
-namespace PropertyMgmt.Infrastructure.Notifications;
+namespace PropertyMgmt.Api.Services;
 
 public class SignalRNotificationService : INotificationService
 {
@@ -14,14 +13,6 @@ public class SignalRNotificationService : INotificationService
     {
         _hubContext = hubContext;
         _context = context;
-    }
-
-    public async Task<ICollection<Notification>> GetUnreadNotificationsAsync(Guid userId, string tenantId)
-    {
-        var notifications = await _context.Notifications.AsNoTracking()
-            .Where(n => n.UserId == userId && n.TenantId == tenantId && !n.IsRead)
-            .ToListAsync();
-        return notifications;
     }
 
     public async Task SendRealTimeNotificationAsync(Guid userId, string title, string message, string tenantId)

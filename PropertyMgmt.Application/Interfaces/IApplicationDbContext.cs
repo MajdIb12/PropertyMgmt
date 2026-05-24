@@ -3,27 +3,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PropertyMgmt.Application.Interfaces;
 
-    public interface IApplicationDbContext
-    {
-        DbSet<Admin> Admins { get; }
-        DbSet<Booking> Bookings { get; }
-        DbSet<Listing> Listings { get; }
-        DbSet<ListingImage> ListingImages { get; }
-        DbSet<ListingType> ListingTypes { get; }
-        DbSet<Notification> Notifications { get; }
-        DbSet<OwnerSubscription> OwnerSubscriptions { get; }
-        DbSet<Payment> Payments { get; }
-        DbSet<Review> Reviews { get; }
-        DbSet<SubscriptionPlan> SubscriptionPlans { get; }
-        DbSet<User> Customers { get; }
+public interface IApplicationDbContext
+{
+    DbSet<Admin> Admins { get; }
+    DbSet<Booking> Bookings { get; }
+    DbSet<Listing> Listings { get; }
+    DbSet<ListingImage> ListingImages { get; }
+    DbSet<ListingType> ListingTypes { get; }
+    DbSet<Notification> Notifications { get; }
+    DbSet<OwnerSubscription> OwnerSubscriptions { get; }
+    DbSet<Payment> Payments { get; }
+    DbSet<Review> Reviews { get; }
+    DbSet<SubscriptionPlan> SubscriptionPlans { get; }
+    DbSet<User> Customers { get; }
 
-        DbSet<AuditLog> AuditLogs { get; }
+    DbSet<AuditLog> AuditLogs { get; }
 
-        DbSet<Tenant> Tenants { get; }
-        DbSet<MasterAdmin> MasterAdmins { get; }
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+    DbSet<Tenant> Tenants { get; }
+    DbSet<MasterAdmin> MasterAdmins { get; }
+    DbSet<Conversation> Conversations { get; }
+    DbSet<ChatMessage> ChatMessages { get; }
 
-        Task<IDisposable> BeginTransactionAsync(CancellationToken cancellationToken);
-        Task CommitTransactionAsync(CancellationToken cancellationToken);
-        Task RollbackTransactionAsync(CancellationToken cancellationToken);
-    }
+
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+    Task<IDisposable> BeginTransactionAsync(CancellationToken cancellationToken);
+    Task CommitTransactionAsync(CancellationToken cancellationToken);
+    Task RollbackTransactionAsync(CancellationToken cancellationToken);
+}

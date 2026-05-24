@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Common\Model\" />
     <Folder Include="Common\Model\IdentityDtos\" />
     <Folder Include="Features\Admins\" />
     <Folder Include="Features\Admins\Command\" />

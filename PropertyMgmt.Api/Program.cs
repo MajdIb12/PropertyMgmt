@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using PropertyMgmt.Api.Middleware.Exceptions;
 using PropertyMgmt.Api.Middleware;
 using PropertyMgmt.Infrastructure.Notifications;
+using PropertyMgmt.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,6 +72,7 @@ app.UseMiddleware<SecurityStampValidatorMiddleware>();
 
 app.UseAuthorization();
 app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<ChatHub>("/hubs/chats");
 
 // تفعيل الخرائط للـ Controllers
 app.MapControllers();

@@ -1,24 +1,24 @@
-﻿using System.Reflection;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Domain.Common;
 using PropertyMgmt.Domain.Entities;
-using PropertyMgmt.Infrastructure.Persistence.Configurations;
+using PropertyMgmt.Infrastructure.Persistence.Audit;
+using System.Reflection;
 
 namespace PropertyMgmt.Infrastructure.Contexts;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>, IApplicationDbContext
 {
-    // 1. تعريف خدمة معرفة الشركة الحالية
     private readonly ITenantService? _tenantService;
 
     private IDbContextTransaction? _currentTransaction;
+    private readonly ICurrentUserService _currentUser;
 
-    // 2. إصلاح الـ DbSets لتعمل مع EF Core
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<Listing> Listings { get; set; }
@@ -33,47 +33,46 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<MasterAdmin> MasterAdmins { get; set; }
+    public DbSet<Conversation> Conversations { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
 
     private string? _currentTenantId => _tenantService?.TenantId;
     private bool _isMasterAdmin => _tenantService?.IsMasterAdmin ?? false;
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService, ICurrentUserService currentUser)
         : base(options)
     {
         _tenantService = tenantService;
-        
+        _currentUser = currentUser;
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-{
-    // أضف هذا السطر لإسكات هذا التحذير تحديداً ومنعه من التحول لـ Exception
-    optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
-}
+    {
+        // أضف هذا السطر لإسكات هذا التحذير تحديداً ومنعه من التحول لـ Exception
+        optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+    }
 
     override protected void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        //  modelBuilder.ApplyConfiguration(new TenantConfiguration());
-        //  modelBuilder.ApplyConfiguration(new MasterAdminConfiguration());
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-        // 4. دمج فلاتر الـ Soft Delete والـ Tenant في مكان واحد!
-        // ملاحظة: تأكد أن الكيانات ترث من BaseEntity الذي يحتوي على TenantId
-        
-       foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-    {
-        if (entityType.BaseType != null)
-    {
-        continue;
-    }
-        var type = entityType.ClrType;
 
-        // استخدام الـ Reflection لاستدعاء دالتنا السحرية بالنوع الفعلي (مثلاً Admin)
-        var method = typeof(ApplicationDbContext)
-            .GetMethod(nameof(ApplyGlobalFilters), BindingFlags.NonPublic | BindingFlags.Instance)
-            ?.MakeGenericMethod(type);
 
-        method?.Invoke(this, new object[] { modelBuilder });
-    }
-        
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (entityType.BaseType != null)
+            {
+                continue;
+            }
+            var type = entityType.ClrType;
+
+            // استخدام الـ Reflection لاستدعاء دالتنا السحرية بالنوع الفعلي (مثلاً Admin)
+            var method = typeof(ApplicationDbContext)
+                .GetMethod(nameof(ApplyGlobalFilters), BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.MakeGenericMethod(type);
+
+            method?.Invoke(this, new object[] { modelBuilder });
+        }
+
     }
 
     private void ApplyGlobalFilters<T>(ModelBuilder builder) where T : class
@@ -84,38 +83,39 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
 
         var tenantFilter = isMayHaveTenant || isTenant;
         if (isSoftDelete)
-    {
-        // 1. الكيانات التي تتبع مستأجر (إجبارياً أو اختيارياً)
-        if (isTenant || isMayHaveTenant)
         {
-            builder.Entity<T>().HasQueryFilter(e =>
-                EF.Property<bool>(e, "IsDeleted") == false &&
-                (_isMasterAdmin || EF.Property<string>(e, "TenantId") == _currentTenantId));
+            // 1. الكيانات التي تتبع مستأجر (إجبارياً أو اختيارياً)
+            if (isTenant || isMayHaveTenant)
+            {
+                builder.Entity<T>().HasQueryFilter(e =>
+                    EF.Property<bool>(e, "IsDeleted") == false &&
+                    (_isMasterAdmin || EF.Property<string>(e, "TenantId") == _currentTenantId));
+            }
+            // 2. الكيانات العامة التي لا تتبع أي مستأجر ولكنها تدعم الحذف الناعم (مثل جدول الـ Tenants نفسه)
+            else
+            {
+                builder.Entity<T>().HasQueryFilter(e => EF.Property<bool>(e, "IsDeleted") == false);
+            }
         }
-        // 2. الكيانات العامة التي لا تتبع أي مستأجر ولكنها تدعم الحذف الناعم (مثل جدول الـ Tenants نفسه)
-        else
-        {
-            builder.Entity<T>().HasQueryFilter(e => EF.Property<bool>(e, "IsDeleted") == false);
-        }
-    }
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-{
-    var tenantId = _currentTenantId;
-    var isMasterAdmin = _isMasterAdmin;
-    foreach (var entry in ChangeTracker.Entries())
     {
-        // 1. التعامل مع الـ Soft Delete (لكل الكيانات)
-        if (entry.Entity is ISoftDelete softDeleteEntry && entry.State == EntityState.Deleted)
+        await OnBeforeSaveChangesAsync(cancellationToken);
+        var tenantId = _currentTenantId;
+        var isMasterAdmin = _isMasterAdmin;
+        foreach (var entry in ChangeTracker.Entries())
         {
-            entry.State = EntityState.Modified;
-            softDeleteEntry.IsDeleted = true;
-            softDeleteEntry.DeletedAt = DateTimeOffset.UtcNow;
-        }
+            // 1. التعامل مع الـ Soft Delete (لكل الكيانات)
+            if (entry.Entity is ISoftDelete softDeleteEntry && entry.State == EntityState.Deleted)
+            {
+                entry.State = EntityState.Modified;
+                softDeleteEntry.IsDeleted = true;
+                softDeleteEntry.DeletedAt = DateTimeOffset.UtcNow;
+            }
 
-        switch (entry.State)
-        {
+            switch (entry.State)
+            {
                 case EntityState.Added:
                     entry.Property("CreatedAt").CurrentValue = DateTime.UtcNow;
                     if (entry.Entity is IMustHaveTenant mustHave)
@@ -131,7 +131,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
 
                             mustHave.TenantId = tenantId;
                         }
-                        
+
                     }
                     else if (entry.Entity is IMayHaveTenant mayHave)
                     {
@@ -147,22 +147,81 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
                                 mayHave.TenantId = tenantId;
                             }
                         }
-                        
+
                     }
                     break;
                 case EntityState.Modified:
-                entry.Property("CreatedAt").IsModified = false; // لا نسمح بتعديل CreatedAt
-                entry.Property("UpdatedAt").CurrentValue = DateTime.UtcNow; // نحدث UpdatedAt تلقائياً
+                    entry.Property("CreatedAt").IsModified = false; // لا نسمح بتعديل CreatedAt
+                    entry.Property("UpdatedAt").CurrentValue = DateTime.UtcNow; // نحدث UpdatedAt تلقائياً
                     if (entry.Entity is IMustHaveTenant || entry.Entity is IMayHaveTenant)
-                {
-                    entry.Property("TenantId").IsModified = false;
-                }
-                break;
+                    {
+                        entry.Property("TenantId").IsModified = false;
+                    }
+                    break;
+            }
         }
+
+        return await base.SaveChangesAsync(cancellationToken);
     }
 
-    return await base.SaveChangesAsync(cancellationToken);
-}
+
+    private async Task OnBeforeSaveChangesAsync(CancellationToken cancellationToken)
+    {
+        ChangeTracker.DetectChanges();
+        var auditEntries = new List<AuditEntry>();
+
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.Entity is IAuditableEntity && (entry.State == EntityState.Added || entry.State == EntityState.Modified || entry.State == EntityState.Deleted))
+            {
+                var auditEntry = new AuditEntry(entry)
+                {
+                    TableName = entry.Entity.GetType().Name,
+                    UserId = _currentUser.UserId ?? "System",
+                    Type = entry.State.ToString()
+                };
+
+                auditEntries.Add(auditEntry);
+
+                foreach (var property in entry.Properties)
+                {
+                    string propertyName = property.Metadata.Name;
+                    if (property.Metadata.IsPrimaryKey())
+                    {
+                        auditEntry.KeyValues[propertyName] = property.CurrentValue!;
+                        continue;
+                    }
+
+                    switch (entry.State)
+                    {
+                        case EntityState.Added:
+                            auditEntry.NewValues[propertyName] = property.CurrentValue!;
+                            break;
+
+                        case EntityState.Deleted:
+                            auditEntry.OldValues[propertyName] = property.OriginalValue!;
+                            break;
+
+                        case EntityState.Modified:
+                            if (property.IsModified)
+                            {
+                                // 🟢 إذا تغيرت القيمة فعلياً، نسجل العمود في قائمة الأعمدة المتأثرة
+                                auditEntry.ChangedColumns.Add(propertyName);
+
+                                auditEntry.OldValues[propertyName] = property.OriginalValue!;
+                                auditEntry.NewValues[propertyName] = property.CurrentValue!;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        foreach (var auditEntry in auditEntries)
+        {
+            AuditLogs.Add(auditEntry.ToAuditLog());
+        }
+    }
 
     public async Task<IDisposable> BeginTransactionAsync(CancellationToken cancellationToken)
     {
@@ -197,4 +256,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
             _currentTransaction = null;
         }
     }
+
+    
 }
