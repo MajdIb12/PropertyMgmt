@@ -11,9 +11,10 @@ using System.Security.Claims;
 public class NotificationHub : Hub
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
     private readonly ITenantService _tenantService; // نحتاجها فقط لمعرفة الجروب عند الاتصال
 
-    public NotificationHub(IMediator mediator, ITenantService tenantService)
+    public NotificationHub(IMediator mediator, ITenantService tenantService, ICurrentUserService currentUser)
     {
         _mediator = mediator;
         _tenantService = tenantService;
@@ -22,7 +23,7 @@ public class NotificationHub : Hub
     public override async Task OnConnectedAsync()
     {
         var tenantId = _tenantService.TenantId;
-        var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _currentUser.UserId;
 
         if (!string.IsNullOrEmpty(tenantId) && !string.IsNullOrEmpty(userId))
         {
@@ -30,9 +31,7 @@ public class NotificationHub : Hub
             string privateGroup = $"Tenant-{tenantId}-User-{userId}";
             await Groups.AddToGroupAsync(Context.ConnectionId, privateGroup);
 
-            // 2️⃣ 🧠 السحر هنا: نرسل Query عبر MediatR لجلب الإشعارات غير المقروءة
-            // الـ Handler في طبقة الـ Application هو من سيذهب للداتابيز ويجلبها
-            var unreadNotifications = await _mediator.Send(new GetUnreadNotificationsQuery());
+            var unreadNotifications = await _mediator.Send(new GetUnreadNotificationsQuery(Guid.Parse(userId)));
 
             if (unreadNotifications != null && unreadNotifications.Any())
             {

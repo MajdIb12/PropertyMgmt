@@ -4,7 +4,6 @@ using PropertyMgmt.Infrastructure;
 using Microsoft.OpenApi.Models;
 using PropertyMgmt.Api.Middleware.Exceptions;
 using PropertyMgmt.Api.Middleware;
-using PropertyMgmt.Infrastructure.Notifications;
 using PropertyMgmt.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,7 +60,6 @@ app.UseExceptionHandler(); // يجب أن يكون في البداية
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// الـ CORS يجب أن يكون قبل الـ Routing والـ Auth
 app.UseCors("DefaultPolicy");
 
 // الميدل وير الخاص بنا لتحديد المستأجر (قبل الـ Auth لكي يعرف الـ Auth سياق الطلب)

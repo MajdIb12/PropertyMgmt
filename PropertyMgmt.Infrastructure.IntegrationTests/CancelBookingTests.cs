@@ -17,6 +17,7 @@ public class CancelBookingTests : IAsyncLifetime
 
     private ApplicationDbContext _context;
     private ITenantService _mockTenantService;
+    private ICurrentUserService _mockCurrentUserService;
     private const string TestTenantId = "A1B2C3D4-E5F6-47A8-9B0C-1D2E3F4G5H6I";
 
     // تشغيل الحاوية في Docker قبل بدء الاختبار
@@ -24,15 +25,16 @@ public class CancelBookingTests : IAsyncLifetime
     {
         _mockTenantService = Substitute.For<ITenantService>();
         _mockTenantService.TenantId.Returns(TestTenantId);
+        _mockCurrentUserService = Substitute.For<ICurrentUserService>();
 
-        
+
         var localConnectionString = "Server=.;Database=PropertyMgmtDb_Tests;User Id=sa;Password=sa123456;Trusted_Connection=False;MultipleActiveResultSets=true;TrustServerCertificate=True";
 
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseSqlServer(localConnectionString)
             .Options;
 
-        _context = new ApplicationDbContext(options, _mockTenantService);
+        _context = new ApplicationDbContext(options, _mockTenantService, _mockCurrentUserService);
 
         await _context.Database.EnsureDeletedAsync();
 

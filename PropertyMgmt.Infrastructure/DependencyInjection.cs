@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Domain.Common;
+using PropertyMgmt.Infrastructure.Authentication;
 using PropertyMgmt.Infrastructure.BackgroundServices;
 using PropertyMgmt.Infrastructure.Contexts;
 using PropertyMgmt.Infrastructure.MultiTenancy;
@@ -46,7 +48,8 @@ public static class DependencyInjection
 
         services.AddHostedService<BookingExpirationWorker>();
 
-
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
         return services;
     }
