@@ -1,76 +1,135 @@
 # PropertyMgmt SaaS
 
-A multi-tenant property management backend built with ASP.NET Core and clean architecture principles.
+multi-tenant property management platform backend built with **ASP.NET Core 9**, leveraging **Clean Architecture** and **CQRS** patterns.
 
-## Overview
+---
 
-This solution implements a property management SaaS platform with the following core capabilities:
+## 🏗️ Architectural Overview
 
-- Tenant management and multi-tenancy support
-- Property listing CRUD operations
-- Image upload for listings
-- JWT authentication and ASP.NET Core Identity
-- OpenAPI / Swagger documentation
-- SignalR notifications
-- Clean architecture with separate API, Application, Domain, and Infrastructure layers
-- MediatR command/query pipeline with validation and transaction behavior
+This repository demonstrates enterprise-grade software engineering practices, ensuring strict data isolation, high scalability, and clean separation of concerns.
 
-## Project Structure
+The solution is structured into four distinct layers following Clean Architecture principles:
 
-- `PropertyMgmt.Api/` - ASP.NET Core Web API project and middleware
-- `PropertyMgmt.Application/` - Application layer: commands, queries, business logic, MediatR handlers
-- `PropertyMgmt.Domain/` - Domain entities, enums, and value objects
-- `PropertyMgmt.Infrastructure/` - Data access, identity, tenancy, notification, file storage
-- `PropertyMgmt.Application.UnitTests/` - Unit tests for application logic
-- `PropertyMgmt.Infrastructure.IntegrationTests/` - Integration tests for infrastructure components
+- **`PropertyMgmt.Domain`**: The core layer containing enterprise business rules, entities, value objects, and domain exceptions. Completely decoupled from external frameworks.
+- **`PropertyMgmt.Application`**: Implements CQRS (Command Query Responsibility Segregation) using **MediatR**. Contains business use cases, fluent validations, and abstract interfaces.
+- **`PropertyMgmt.Infrastructure`**: Handles data persistence (EF Core + SQL Server), ASP.NET Core Identity, JWT token generation, tenant resolution, and real-time transport wrappers.
+- **`PropertyMgmt.Api`**: The presentation layer acting as a lightweight entry point. Responsible for middleware orchestration, routing, SignalR hubs, and Swagger documentation.
 
-## Key Features
+---
 
-- `ListingsController` for property listing operations
-- `TenantController` for tenant registration and management
-- `AuthController` for login and token issuance
-- Tenant identification middleware using `X-Tenant-Id` headers or subdomain-based routing
-- FluentValidation and pipeline behaviors for request validation and logging
-- SignalR notifications support via `/hubs/notifications`
+## 💎 Key Architectural & Security Wins
 
-## Requirements
+- **Robust Multi-Tenancy Isolation**: Implements automated data filtering via EF Core **Global Query Filters** based on the resolved Tenant ID, preventing cross-tenant data leakage seamlessly.
+- **Aspect-Oriented Security (Pipeline Behaviors)**: Features centralized cross-cutting validation (e.g., `ChatAccessValidationBehavior`) that implicitly intercepts MediatR requests to verify user-tenant boundaries before reaching the database handler.
+- **Clean API Resource Hierarchies**: Adheres to strict RESTful URL constraints (`/api/conversations/{id}/messages`) separating route context from the payload request body.
+- **Containerized Environment**: Fully containerized using multi-stage Docker builds and coordinated via Docker Compose for immediate local orchestration (Database + API).
 
-- .NET 9 SDK
-- SQL Server or compatible database
+---
 
-## Setup
+## 🛠️ Tech Stack
 
-1. Clone the repository
+- **Framework**: .NET 9.0 (ASP.NET Core)
+- **Persistence**: Entity Framework Core 9 / SQL Server
+- **Identity**: ASP.NET Core Identity + JWT Bearer Tokens
+- **Messaging**: MediatR (CQRS Pattern)
+- **Real-Time**: ASP.NET Core SignalR
+- **Documentation**: Swagger / OpenAPI with custom security schemas
+
+---
+
+## 📂 Solution Structure
+
+````text
+├── src/
+│   ├── PropertyMgmt.Api/
+│   ├── PropertyMgmt.Application/
+│   ├── PropertyMgmt.Domain/
+│   └── PropertyMgmt.Infrastructure/
+└── tests/
+    ├── PropertyMgmt.Application.UnitTests/
+    └── PropertyMgmt.Infrastructure.IntegrationTests/
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Install **.NET 9 SDK**
+- Install **Docker Desktop** (optional, for containerized local setup)
+- Install **SQL Server** or use the provided Docker Compose SQL Server container
+
+### Install and run locally
+
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/your-org/PropertyMgmtSaas.git
    cd PropertyMgmtSaas
    ```
 
-2. Update configuration
-   - Set the `DefaultConnection` string in `PropertyMgmt.Api/appsettings.json` or `PropertyMgmt.Api/appsettings.Development.json`
-   - Configure `JwtSettings` inside `PropertyMgmt.Api/appsettings.json` with `Key`, `Issuer`, `Audience`, and other JWT values
+2. Restore dependencies:
 
-3. Apply database migrations
    ```bash
-   dotnet ef database update --project PropertyMgmt.Infrastructure --startup-project PropertyMgmt.Api
+   dotnet restore
    ```
 
-## Run the API
+3. Update the database connection string in `PropertyMgmt.Api/appsettings.Development.json` if you are not using Docker.
 
-From the solution root:
+4. Run the API:
+
+   ```bash
+   dotnet run --project PropertyMgmt.Api
+   ```
+
+5. Open Swagger UI to explore the API:
+   - `https://localhost:7149/swagger`
+   - `http://localhost:5241/swagger`
+
+---
+
+## 🐳 Docker
+
+This repository includes a multi-stage Dockerfile for the API and a `docker-compose.yml` file to run both the API and SQL Server together.
+
+### What it runs
+
+- `real_estate_db`: SQL Server 2022 container
+- `real_estate_api`: ASP.NET Core 9 API container
+
+### Default Docker Compose configuration
+
+- API exposed on `http://localhost:5000`
+- SQL Server connection string configured as:
+  `Server=database;Database=RealEstateDb;User Id=sa;Password=YourStrong@Pass123;TrustServerCertificate=True;`
+
+### Build and run
+
+From the repository root:
 
 ```bash
-dotnet run --project PropertyMgmt.Api
+docker compose up --build
 ```
 
-Then open Swagger UI at:
+Then browse the Swagger UI:
 
-```text
-https://localhost:5001/swagger
+- `http://localhost:5000/swagger`
+
+### Stop and remove containers
+
+```bash
+docker compose down
 ```
 
-## Testing
+### Notes
+
+- The API Dockerfile exposes ports `8080` and `8081` internally.
+- The compose service maps host port `5000` to container port `8080`.
+- If you use Docker Compose, you do not need to update local `appsettings` for the SQL Server connection string.
+
+---
+
+## 🔧 Testing
 
 Run unit tests:
 
@@ -84,17 +143,5 @@ Run integration tests:
 dotnet test PropertyMgmt.Infrastructure.IntegrationTests/PropertyMgmt.Infrastructure.IntegrationTests.csproj
 ```
 
-## Notes
-
-- `X-Tenant-Id` header is supported for tenant resolution when needed.
-- Authentication is configured using JWT bearer tokens.
-- `PropertyMgmt.Infrastructure` registers Entity Framework Core, Identity, file service, tenant services, and SignalR.
-
-## Improvements
-
-Possible enhancements for future iterations:
-
-- Add frontend client or admin panel
-- Add complete user registration and role management
-- Add deployment scripts and CI/CD pipeline
-- Harden production security settings for JWT, CORS, and HTTPS
+```
+````

@@ -20,6 +20,5 @@ public record ListingDto
     public string OwnerName { get; init; } = string.Empty;
 
     // Collections
-    public List<string> Amenities { get; init; } = new();
     public List<string> ImageUrls { get; init; } = new();
 }

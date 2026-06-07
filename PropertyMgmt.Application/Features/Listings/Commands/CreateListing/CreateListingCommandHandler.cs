@@ -4,7 +4,7 @@ using PropertyMgmt.Application.Interfaces;
 using PropertyMgmt.Domain.ValueObjects;
 namespace PropertyMgmt.Application.Features.Listings.Commands.CreateListing;
 
-public class CreateListingCommandHandler(IApplicationDbContext context, CreateListingMapper mapper, IMediator mediator) : IRequestHandler<CreateListingCommand, Guid>
+public class CreateListingCommandHandler(IApplicationDbContext context, CreateListingMapper mapper) : IRequestHandler<CreateListingCommand, Guid>
 {
 
     public async Task<Guid> Handle(CreateListingCommand request, CancellationToken cancellationToken)

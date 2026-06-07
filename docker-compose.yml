@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # 1️⃣ خدمة قاعدة البيانات (SQL Server)
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: real_estate_db
+    environment:
+      - ACCEPT_EULA=Y                # الموافقة على شروط مايكروسوفت
+      - MSSQL_SA_PASSWORD=YourStrong@Pass123  # كلمة مرور مدير القاعدة (SA)
+    ports:
+      - "1433:1433"                  # ربط منفذ الحاوية بمنفذ جهازك لتراها من الـ SSMS
+    volumes:
+      - sql_data:/var/opt/mssql      # حماية البيانات من الضياع عند إطفاء الحاوية
+
+  # 2️⃣ خدمة الباك إند (.NET 9 API)
+  api:
+    container_name: real_estate_api
+    build:
+      context: .                     # مكان وجود ملف الـ Dockerfile الخاص بالـ API
+      dockerfile: PropertyMgmt.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # السلسلة السحرية: نستخدم اسم الخدمة "database" كـ Server بدلاً من localhost أو IP
+      - ConnectionStrings__DefaultConnection=Server=database;Database=RealEstateDb;User Id=sa;Password=YourStrong@Pass123;TrustServerCertificate=True;
+    ports:
+      - "5000:8080"                  # تمرير المنفذ الخارجي 5000 إلى المنفذ الافتراضي للـ .NET 9
+    depends_on:
+      - database                     # إجبار الـ Docker على تشغيل قاعدة البيانات أولاً قبل الـ API
+
+# 💾 تعريف المساحة التخزينية لعزل بيانات القاعدة
+volumes:
+  sql_data:

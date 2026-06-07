@@ -26,6 +26,8 @@ public class ListingsController : BaseApiController
     [AllowAnonymous]
     [ProducesResponseType(typeof(ListingDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
     public async Task<IActionResult> GetListing(Guid id)
     {
         return Ok(await Mediator.Send(new GetListingByIdQuery(id)));

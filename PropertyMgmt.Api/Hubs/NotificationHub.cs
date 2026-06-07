@@ -18,6 +18,7 @@ public class NotificationHub : Hub
     {
         _mediator = mediator;
         _tenantService = tenantService;
+        _currentUser = currentUser;
     }
 
     public override async Task OnConnectedAsync()

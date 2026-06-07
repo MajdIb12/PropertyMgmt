@@ -1,10 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using PropertyMgmt.Api;
+using PropertyMgmt.Api.Hubs;
+using PropertyMgmt.Api.Middleware;
+using PropertyMgmt.Api.Middleware.Exceptions;
 using PropertyMgmt.Application;
 using PropertyMgmt.Infrastructure;
-using Microsoft.OpenApi.Models;
-using PropertyMgmt.Api.Middleware.Exceptions;
-using PropertyMgmt.Api.Middleware;
-using PropertyMgmt.Api.Hubs;
+using PropertyMgmt.Infrastructure.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,5 +76,10 @@ app.MapHub<ChatHub>("/hubs/chats");
 
 // تفعيل الخرائط للـ Controllers
 app.MapControllers();
-
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    // هذا السطر السحري يفحص ويخلق القاعدة والجداول تلقائياً داخل الحاوية
+    dbContext.Database.Migrate();
+}
 app.Run();

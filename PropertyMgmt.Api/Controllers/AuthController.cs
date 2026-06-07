@@ -7,7 +7,7 @@ namespace PropertyMgmt.Api.Controllers;
 public class AuthController : BaseApiController
     {
         [HttpPost("login")]
-        [AllowAnonymous] // هام جداً: يسمح بالدخول بدون توكن لأن هذا هو مسار الحصول على التوكن
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginCommand command)
         {
             // توجيه الطلب عبر MediatR
